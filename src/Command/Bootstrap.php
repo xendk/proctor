@@ -75,7 +75,7 @@ class Bootstrap extends Command
             }
         });
 
-        $this->setupEyes();
+        $this->setupEyes($output);
 
         $output->writeln("<info>\nBootstrap is done. Check out " . $realpath . "/tests directory</info>");
 
@@ -188,9 +188,18 @@ class Bootstrap extends Command
         }
     }
 
-    protected function setupEyes()
+    /**
+     * Install Eyes client.
+     *
+     * @todo this could be done better, updating being one case to be handled.
+     */
+    protected function setupEyes(OutputInterface $output)
     {
         $myDir = dirname(dirname(__DIR__));
+
+        if (file_exists($myDir . '/monocular')) {
+          return;
+        }
 
         $output->writeln("<info>Installing Monocular</info>");
         $git = (new ProcessBuilder(array('git', 'clone', 'https://github.com/xendk/monocular.git')))->setWorkingDirectory($myDir)->getProcess();
@@ -202,7 +211,7 @@ class Bootstrap extends Command
             }
         });
 
-        $npm = (new ProcessBuilder(array('npm', 'install')))->setWorkingDirectory($myDir)->getProcess();
+        $npm = (new ProcessBuilder(array('npm', 'install')))->setWorkingDirectory($myDir)->setWorkingDirectory($myDir . '/monocular')->getProcess();
         $npm->mustRun(function ($type, $buffer) use ($output) {
             if (Process::ERR === $type) {
                 $output->getErrorOutput()->write($buffer);
