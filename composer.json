@@ -1,0 +1,24 @@
+{
+  "name":"xendk/proctor",
+  "description":"Site testing framework.",
+  "license":"GPL-2.0+",
+  "authors":[
+    { "name" : "Thomas Fini Hansen", "email": "xen@xen.dk" }
+  ],
+
+  "require": {
+    "php": ">=5.4.0",
+    "codeception/codeception": "~2.0",
+    "codeception/phpbuiltinserver": "1.2.1",
+    "symfony/console": "~2.4",
+    "symfony/process": "~2.0",
+    "symfony/yaml": "~2.4"
+ },
+
+  "autoload":{
+    "psr-4":{
+      "Proctor\\":"src"
+    }
+  },
+  "bin":["proctor"]
+}

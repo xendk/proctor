@@ -1,0 +1,13 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Codeception CLI
+ */
+
+require_once dirname(__FILE__) . '/vendor/autoload.php';
+
+use Symfony\Component\Console\Application;
+
+$app = new Application('Proctor', Proctor\Proctor::VERSION);
+$app->add(new Proctor\Command\Bootstrap('bootstrap'));
+$app->run();
