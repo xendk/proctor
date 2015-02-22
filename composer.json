@@ -18,7 +18,11 @@
   "autoload":{
     "psr-4":{
       "Proctor\\":"src"
+    },
+    "psr-0": {
+      "Codeception": "module"
     }
+
   },
   "bin":["proctor"]
 }
