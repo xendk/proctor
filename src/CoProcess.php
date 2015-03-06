@@ -24,6 +24,9 @@ class CoProcess {
 
     protected $pipes;
 
+    /**
+     * Create a co-process.
+     */
     public function __construct($commandLine, $cwd = null)
     {
         if (!function_exists('proc_open')) {
@@ -34,6 +37,9 @@ class CoProcess {
         $this->cwd = $cwd;
     }
 
+    /**
+     * Start the process.
+     */
     public function start()
     {
         if ($this->isRunning()) {
@@ -59,6 +65,9 @@ class CoProcess {
         $this->status = self::STATUS_STARTED;
     }
 
+    /**
+     * Returns whether the process is running.
+     */
     public function isRunning()
     {
         if (self::STATUS_STARTED !== $this->status) {
@@ -70,6 +79,9 @@ class CoProcess {
         return $this->processInformation['running'];
     }
 
+    /**
+     * Update internal state variables and do IO.
+     */
     protected function updateStatus($blocking = false)
     {
         if (self::STATUS_STARTED !== $this->status) {
@@ -88,6 +100,9 @@ class CoProcess {
         }
     }
 
+    /**
+     * Read and write from/to the process.
+     */
     protected function doIO($blocking = false)
     {
         if (empty($this->pipes)) {
@@ -145,6 +160,9 @@ class CoProcess {
         }
     }
 
+    /**
+     * Close and wait for the process to end.
+     */
     private function close()
     {
         foreach ($this->pipes as $pipe) {
@@ -168,6 +186,9 @@ class CoProcess {
         return $this->exitcode;
     }
 
+    /**
+     * Wait for the process to end.
+     */
     public function wait()
     {
         $this->inputClosed = true;
@@ -180,24 +201,36 @@ class CoProcess {
         return $this->exitcode;
     }
 
+    /**
+     * Write to the process STDIN.
+     */
     public function write($string)
     {
         $this->inputBuffer .= $string;
         $this->doIO();
     }
 
+    /**
+     * Get process STDOUT.
+     */
     public function getOutput()
     {
         $this->updateStatus();
         return $this->output;
     }
 
+    /**
+     * Get process STDOUT.
+     */
     public function getErrorOutput()
     {
         $this->updateStatus();
         return $this->errorOutput;
     }
 
+    /**
+     * Get the process exit code.
+     */
     public function getExitCode()
     {
         return $this->exitcode;

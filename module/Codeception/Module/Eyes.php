@@ -13,11 +13,15 @@ class Eyes extends \Codeception\Module
 
     protected $requiredFields = ['api_key', 'app_name'];
 
+    /**
+     * Run visual inspection on browser.
+     */
     public function eyeball($tag)
     {
         if (!$this->monocular) {
             $this->startMonocular();
 
+            // Get the window dimensions from the browser.
             $webdriver = $this->getModule('WebDriver')->webDriver;
             $dimensions = $webdriver->manage()->window()->getSize();
 
@@ -36,6 +40,9 @@ class Eyes extends \Codeception\Module
         $this->send('image', ['file' => $file, 'tag' => $tag]) . "\n";
     }
 
+    /**
+     * Start the Monocular process.
+     */
     protected function startMonocular()
     {
         $script = dirname(dirname(dirname(__DIR__))) . '/monocular/monocular.js';
@@ -54,6 +61,9 @@ class Eyes extends \Codeception\Module
         // throw new \Codeception\Exception\ModuleConfig(__CLASS__, "messge")
     }
 
+    /**
+     * Send message to Monocular.
+     */
     protected function send($message, $data = [])
     {
         $data['cmd'] = $message;
@@ -61,11 +71,21 @@ class Eyes extends \Codeception\Module
         $this->monocular->write(json_encode($data) . "\n");
     }
 
+    /**
+     * Called before each test.
+     *
+     * Save the test name for later.
+     */
     public function _before(TestCase $test)
     {
         $this->currentTest = $test->getName();
     }
 
+    /**
+     * Called after suite.
+     *
+     * End the Monocular session, if it was started, and parse the result.
+     */
     public function _after()
     {
         if ($this->monocular) {
