@@ -13,11 +13,18 @@ class Eyes extends \Codeception\Module
 
     protected $requiredFields = ['api_key', 'app_name'];
 
+    protected $config = [
+        'enabled' => true,
+    ];
+
     /**
      * Run visual inspection on browser.
      */
     public function eyeball($tag)
     {
+        if (!$this->config['enabled']) {
+            return;
+        }
         if (!$this->monocular) {
             $this->startMonocular();
 
