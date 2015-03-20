@@ -9,6 +9,7 @@ require_once __DIR__ . '/../../autoload.php';
 use Symfony\Component\Console\Application;
 
 $app = new Application('Proctor', Proctor\Proctor::VERSION);
-$app->add(new Proctor\Command\Bootstrap('bootstrap'));
 $app->add(new Proctor\Command\ConfigInit('config:init'));
+$app->add(new Proctor\Command\SetupDrupal('setup:drupal'));
+$app->add(new Proctor\Command\Build('build'));
 $app->run();

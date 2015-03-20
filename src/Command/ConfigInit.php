@@ -2,7 +2,9 @@
 
 namespace Proctor\Command;
 
+use Exception;
 use Proctor\Proctor;
+use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -22,21 +24,33 @@ class ConfigInit extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $fileName = getenv('HOME') . '/.proctor.yml';
-        if (file_exists($fileName)) {
-            $output->writeln("<error>~/.proctor.yml already exists</error>");
-            return;
-        }
+        try {
+            $fileName = Proctor::getConfigFileName();
+            if (file_exists($fileName)) {
+                throw new RuntimeException('~/.proctor.yml already exists', 1);
 
-        $config = <<<EOF
+            }
+
+            // Not using YAML::dump() as we want to inject comments.
+            $config = <<<EOF
+# Hostname for mysql server.
+mysql-hostname: localhost
 # Username for mysql.
 mysql-username: username
 # Password for mysql.
 mysql-password: password
 # Path to selenium-server jar.
 selenium-server: ""
+# Command line to use for drush, if "drush" wont suffice.
+drush: ""
 EOF;
-        file_put_contents($fileName, $config);
-        $output->writeln("<info>Created ~/.proctor.yml</info>");
+            if (file_put_contents($fileName, $config) === false) {
+                throw new RuntimeException('Could not write ~/.proctor.yml', 1);
+            }
+            $output->writeln("<info>Created ~/.proctor.yml</info>");
+        } catch (Exception $e) {
+            $output->writeln("<error>" . $e->getMessage() . "</error>");
+            return $e->getCode() > 0 ? $e->getCode() : 1;
+        }
     }
 }
