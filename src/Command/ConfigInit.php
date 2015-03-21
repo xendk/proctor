@@ -42,7 +42,13 @@ mysql-password: password
 # Path to selenium-server jar.
 selenium-server: ""
 # Command line to use for drush, if "drush" wont suffice.
-drush: ""
+drush-command: ""
+# Command line to use for mysql, if "mysql" wont suffice.
+mysql-command: ""
+# This allows for mapping site names to database names. The first matching
+# pattern will be used.
+# database-mapping:
+#     "/^([^.]+).([^.]+).([^.]+)$/": "$2_$1"
 EOF;
             if (file_put_contents($fileName, $config) === false) {
                 throw new RuntimeException('Could not write ~/.proctor.yml', 1);

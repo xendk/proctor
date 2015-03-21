@@ -50,7 +50,9 @@ class Build extends Command
             $output->writeln("<info>Building Drupal " . $coreMajor . " site</info>");
             $output->writeln("<info>Configuring site</info>");
 
-            $this->{'buildDrupal' . $coreMajor}($siteName);
+            $database = $this->createDatabase($siteName);
+
+            $this->{'buildDrupal' . $coreMajor}($siteName, $database);
             $this->addToSites($siteName);
 
             $output->writeln("<info>Syncing database and files</info>");
@@ -91,16 +93,52 @@ class Build extends Command
     }
 
     /**
+     * Figure out the database name for a site and create it.
+     */
+    protected function createDatabase($siteName)
+    {
+        $patterns = is_array($this->config['database-mapping']) ? $this->config['database-mapping'] : array();
+        // Default to prepend "proctor_" to the site name.
+        $patterns['/^(.*)$/'] = 'proctor_$1';
+        $database = $siteName;
+        foreach ($patterns as $pattern => $replacement) {
+            if (preg_match($pattern, $siteName)) {
+                $database = preg_replace($pattern, $replacement, $siteName);
+                break;
+            }
+        }
+
+        // Replace anything but alphanumeric and underscore with underscore to
+        // avoid annoying mysql.
+        $database = preg_replace('/[^a-z0-9_]/', '_', $database);
+
+        $command = empty($this->config['mysql-command']) ? 'mysql' : $this->config['mysql-command'];
+
+        $command .= " -h " . $this->config['mysql-hostname'];
+        $command .= " -u " . $this->config['mysql-username'];
+        $command .= " -p" . $this->config['mysql-password'];
+        $command .= " -e \"CREATE DATABASE IF NOT EXISTS {$database};\"";
+
+        // Create database.
+        $process = new Process($command);
+        $process->run();
+        if ($process->getExitCode() != 0) {
+            throw new RuntimeException("Command \"{$process->getCommandLine()}\" failed");
+        }
+
+        return $database;
+    }
+
+    /**
      * Build Drupal  site.
      */
-    protected function buildDrupal7($siteName)
+    protected function buildDrupal7($siteName, $database)
     {
         $settingsFile = 'sites/' . $siteName . '/settings.php';
 
         if (!file_exists(dirname($settingsFile))) {
             if (!mkdir(dirname($settingsFile), 0777, true)) {
                 throw new RuntimeException('Could not create site directory', 1);
-
             }
         }
 
@@ -115,7 +153,7 @@ class Build extends Command
         $dbSettings = array(
             'default' => array(
                 'driver' => 'mysql',
-                'database' => 'TODO',
+                'database' => $database,
                 'username' => $this->config['mysql-username'],
                 'password' => $this->config['mysql-password'],
                 'host' => $this->config['mysql-hostname'],
@@ -167,7 +205,7 @@ EOF;
      */
     protected function fetchDrush($siteName)
     {
-        $command = empty($this->config['drush']) ? 'drush' : $this->config['drush'];
+        $command = empty($this->config['drush-command']) ? 'drush' : $this->config['drush-command'];
         $alias = $this->siteConfig['fetch-alias'];
         if (empty($alias) || $alias[0] != '@') {
             throw new RuntimeException("Invalid alias \"{$alias}\"");
@@ -186,5 +224,5 @@ EOF;
         if ($process->getExitCode() != 0) {
             throw new RuntimeException("Command \"{$process->getCommandLine()}\" failed");
         }
-}
+    }
 }

@@ -13,22 +13,25 @@ Feature: Building Drupal site
     mysql-hostname: myhostname
     mysql-username: myusername
     mysql-password: mypassword
-    drush: "echo >>../cmd.log"
+    drush-command: "echo >>../../cmd.log "
+    mysql-command: "echo >>cmd.log "
+    database-mapping:
+        "/^([^.]+).([^.]+).([^.]+)$/": "$2_$1"
     """
     And "tests/proctor/drupal.yml" contains:
     """
     fetch-strategy: drush
     fetch-alias: @reality
     """
-    When I run "proctor build test"
+    When I run "proctor build test.site.dev"
     Then it should pass with "Building Drupal 7 site"
-    And "sites/test/settings.php" should contain the string:
+    And "sites/test.site.dev/settings.php" should contain the string:
     """
     $databases = array (
       'default' =>
       array (
         'driver' => 'mysql',
-        'database' => 'TODO',
+        'database' => 'site_test',
         'username' => 'myusername',
         'password' => 'mypassword',
         'host' => 'myhostname',
@@ -37,17 +40,18 @@ Feature: Building Drupal site
       ),
     );
     """
-    And "sites/test/settings.php" should contain the string:
+    And "sites/test.site.dev/settings.php" should contain the string:
     """
     $drupal_hash_salt = '';
     """
     And "sites/sites.php" should contain:
     """
     <?php
-    $sites['test'] = 'test';
+    $sites['test.site.dev'] = 'test.site.dev';
     """
-    And "sites/cmd.log" should contain:
+    And "cmd.log" should contain:
     """
+    -h myhostname -u myusername -pmypassword -e CREATE DATABASE IF NOT EXISTS site_test;
     sql-sync @reality @self
     rsync @reality:%files @self:%files
     """
