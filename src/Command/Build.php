@@ -97,7 +97,11 @@ class Build extends Command
      */
     protected function createDatabase($siteName)
     {
-        $patterns = is_array($this->config['database-mapping']) ? $this->config['database-mapping'] : array();
+        $patterns = array();
+        if (isset($this->config['database-mapping']) &&
+            is_array($this->config['database-mapping'])) {
+            $patterns = $this->config['database-mapping'];
+        }
         // Default to prepend "proctor_" to the site name.
         $patterns['/^(.*)$/'] = 'proctor_$1';
         $database = $siteName;
