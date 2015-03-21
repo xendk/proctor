@@ -62,3 +62,31 @@ Feature: Building Drupal site
     """
     When I run "proctor build test"
     Then it should fail with "Global configuration not found, please run proctor config:init"
+
+  Scenario: Output from failing commands
+    Given "includes/bootstrap.inc" contains:
+    """
+    define('VERSION', '7.34');
+    """
+    # The funky quoting in the echo statemens will be handled my the
+    # shell, so when we check for the string without quotes, it wont
+    # match the command line itself, but only its output.
+    And "~/.proctor.yml" contains:
+    """
+    mysql-hostname: myhostname
+    mysql-username: myusername
+    mysql-password: mypassword
+    drush-command: 'echo "bad"drush && false'
+    mysql-command: 'echo "bad"mysql && false'
+    database-mapping:
+    "/^([^.]+).([^.]+).([^.]+)$/": "$2_$1"
+    """
+    And "tests/proctor/drupal.yml" contains:
+    """
+    fetch-strategy: drush
+    fetch-alias: @reality
+    """
+    When I run "proctor build test.site.dev"
+    Then it should fail with "badmysql"
+    
+    

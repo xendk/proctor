@@ -124,11 +124,7 @@ class Build extends Command
         $command .= " -e \"CREATE DATABASE IF NOT EXISTS {$database};\"";
 
         // Create database.
-        $process = new Process($command);
-        $process->run();
-        if ($process->getExitCode() != 0) {
-            throw new RuntimeException("Command \"{$process->getCommandLine()}\" failed");
-        }
+        $this->runCommand($command);
 
         return $database;
     }
@@ -216,17 +212,21 @@ EOF;
         }
 
         // Sync database.
-        $process = new Process($command . " sql-sync {$alias} @self", 'sites/' . $siteName);
-        $process->run();
-        if ($process->getExitCode() != 0) {
-            throw new RuntimeException("Command \"{$process->getCommandLine()}\" failed");
-        }
+        $this->runCommand($command . " sql-sync {$alias} @self", 'sites/' . $siteName);
 
         // Sync files.
-        $process = new Process($command . " rsync {$alias}:%files @self:%files", 'sites/' . $siteName);
+        $this->runCommand($command . " rsync {$alias}:%files @self:%files", 'sites/' . $siteName);
+    }
+
+    /**
+     * Run a command.
+     */
+    protected function runCommand($command, $cwd = null)
+    {
+        $process = new Process($command, $cwd);
         $process->run();
         if ($process->getExitCode() != 0) {
-            throw new RuntimeException("Command \"{$process->getCommandLine()}\" failed");
+            throw new RuntimeException("Command \"{$process->getCommandLine()}\" failed\nOutput:\n{$process->getOutput()}\nError outbut:\n{$process->getErrorOutput()}");
         }
     }
 }
