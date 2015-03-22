@@ -123,6 +123,12 @@ class FeatureContext implements Context, SnippetAcceptingContext
 
         $this->process->start();
         $this->process->wait();
+
+        // Check that PHP didn't throw any notices or other cruft in the
+        // output.
+        if (preg_match('/(PHP Notice|PHP Stack trace:)/', $this->getOutput())) {
+            throw new \RuntimeException('PHP cruft in output\n' . $this->getOutput());
+        }
     }
 
     /**
