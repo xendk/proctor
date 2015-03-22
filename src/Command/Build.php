@@ -59,7 +59,7 @@ class Build extends Command
 
             switch ($this->siteConfig['fetch-strategy']) {
                 case 'drush':
-                    $this->fetchDrush($siteName);
+                    $this->fetchDrush($siteName, $database);
                     break;
 
                 default:
@@ -73,7 +73,8 @@ class Build extends Command
         }
     }
 
-    protected function sniffDrupalMajor($path) {
+    protected function sniffDrupalMajor($path)
+    {
         if (file_exists($path . '/core/lib/Drupal.php')) {
             return 8;
         }
@@ -121,7 +122,11 @@ class Build extends Command
         $command .= " -h " . $this->config['mysql-hostname'];
         $command .= " -u " . $this->config['mysql-username'];
         $command .= " -p" . $this->config['mysql-password'];
+
+        $command = $this->mysqlCommand();
         $command .= " -e \"CREATE DATABASE IF NOT EXISTS {$database};\"";
+
+
 
         // Create database.
         $this->runCommand($command);
@@ -152,13 +157,15 @@ class Build extends Command
 
         $dbSettings = array(
             'default' => array(
-                'driver' => 'mysql',
-                'database' => $database,
-                'username' => $this->config['mysql-username'],
-                'password' => $this->config['mysql-password'],
-                'host' => $this->config['mysql-hostname'],
-                'port' => '',
-                'prefix' => '',
+                'default' => array(
+                    'driver' => 'mysql',
+                    'database' => $database,
+                    'username' => $this->config['mysql-username'],
+                    'password' => $this->config['mysql-password'],
+                    'host' => $this->config['mysql-hostname'],
+                    'port' => '',
+                    'prefix' => '',
+                ),
             ),
         );
 
@@ -203,7 +210,7 @@ EOF;
     /**
      * Fetch database and files using Drush.
      */
-    protected function fetchDrush($siteName)
+    protected function fetchDrush($siteName, $database)
     {
         $command = empty($this->config['drush-command']) ? 'drush' : $this->config['drush-command'];
         $alias = $this->siteConfig['fetch-alias'];
@@ -212,10 +219,10 @@ EOF;
         }
 
         // Sync database.
-        $this->runCommand($command . " sql-sync {$alias} @self", 'sites/' . $siteName);
+        $this->runCommand($command . " {$alias} sql-dump | " . $this->mysqlCommand() . ' ' . $database, 'sites/' . $siteName);
 
         // Sync files.
-        $this->runCommand($command . " rsync {$alias}:%files @self:%files", 'sites/' . $siteName);
+        $this->runCommand($command . " rsync -y {$alias}:%files @self:%files", 'sites/' . $siteName);
     }
 
     /**
@@ -228,5 +235,30 @@ EOF;
         if ($process->getExitCode() != 0) {
             throw new RuntimeException("Command \"{$process->getCommandLine()}\" failed\nOutput:\n{$process->getOutput()}\nError outbut:\n{$process->getErrorOutput()}");
         }
+    }
+
+    /**
+     * Generate mysql command line.
+     */
+    protected function mysqlCommand()
+    {
+        $command = 'mysql';
+        if (isset($this->config['mysql-command']) &&
+            !empty($this->config['mysql-command'])) {
+            $command = $this->config['mysql-command'];
+        }
+
+        if (isset($this->config['mysql-hostname'])) {
+            $command .= " -h " . $this->config['mysql-hostname'];
+        }
+        if (isset($this->config['mysql-username'])) {
+            $command .= " -u " . $this->config['mysql-username'];
+        }
+
+        if (isset($this->config['mysql-password'])) {
+            $command .= " -p" . $this->config['mysql-password'];
+        }
+
+        return $command;
     }
 }

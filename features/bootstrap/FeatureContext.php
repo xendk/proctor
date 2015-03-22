@@ -114,12 +114,13 @@ class FeatureContext implements Context, SnippetAcceptingContext
             )
         );
 
+        $env = $this->process->getEnv();
         // Don't reset the LANG variable on HHVM, because it breaks HHVM itself
         if (!defined('HHVM_VERSION')) {
-            $env = $this->process->getEnv();
             $env['LANG'] = 'en'; // Ensures that the default language is en, whatever the OS locale is.
-            $this->process->setEnv($env);
         }
+        $env['TESTLOG'] = $this->workingDir . '/test.log';
+        $this->process->setEnv($env);
 
         $this->process->start();
         $this->process->wait();

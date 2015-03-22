@@ -13,8 +13,8 @@ Feature: Building Drupal site
     mysql-hostname: myhostname
     mysql-username: myusername
     mysql-password: mypassword
-    drush-command: "echo >>../../cmd.log "
-    mysql-command: "echo >>cmd.log "
+    drush-command: "echo drush >>$TESTLOG "
+    mysql-command: "echo mysql >>$TESTLOG "
     database-mapping:
         "/^([^.]+).([^.]+).([^.]+)$/": "$2_$1"
     """
@@ -30,13 +30,16 @@ Feature: Building Drupal site
     $databases = array (
       'default' =>
       array (
-        'driver' => 'mysql',
-        'database' => 'site_test',
-        'username' => 'myusername',
-        'password' => 'mypassword',
-        'host' => 'myhostname',
-        'port' => '',
-        'prefix' => '',
+        'default' =>
+        array (
+          'driver' => 'mysql',
+          'database' => 'site_test',
+          'username' => 'myusername',
+          'password' => 'mypassword',
+          'host' => 'myhostname',
+          'port' => '',
+          'prefix' => '',
+        ),
       ),
     );
     """
@@ -49,12 +52,14 @@ Feature: Building Drupal site
     <?php
     $sites['test.site.dev'] = 'test.site.dev';
     """
-    And "cmd.log" should contain:
+    And "test.log" should contain:
     """
-    -h myhostname -u myusername -pmypassword -e CREATE DATABASE IF NOT EXISTS site_test;
-    sql-sync @reality @self
-    rsync @reality:%files @self:%files
+    mysql -h myhostname -u myusername -pmypassword -e CREATE DATABASE IF NOT EXISTS site_test;
+    drush @reality sql-dump
+    mysql -h myhostname -u myusername -pmypassword site_test
+    drush rsync -y @reality:%files @self:%files
     """
+
   Scenario: Fail on missing config file
     Given "includes/bootstrap.inc" contains:
     """
