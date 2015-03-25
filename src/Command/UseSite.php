@@ -38,7 +38,16 @@ class UseSite extends Command
             $url = 'http://' . $input->getArgument('site');
 
             $finder = new Finder();
-            $finder->files()->in('tests/behat')->name('*.yml')->name('*.yml.dist');
+            $finder->files();
+
+            if (file_exists('tests/behat')) {
+                $finder->in('tests/behat');
+            }
+            if (file_exists('tests/codeception')) {
+                $finder->in('tests/codeception');
+            }
+
+            $finder->name('*.yml')->name('*.yml.dist');
             foreach ($finder as $file) {
                 $contents = file_get_contents($file->getPathname());
                 $contents = preg_replace('{(["\'])?https?:.*?(\\1) # proctor:host}', "\$1$url\$1 # proctor:host", $contents, -1, $count);
