@@ -198,6 +198,8 @@ class FeatureContext implements Context, SnippetAcceptingContext
             mkdir(dirname($path), 0777, true);
         }
         file_put_contents($path, (string) $string);
+        // Make files executable, we need it for faking vendor/bin.
+        chmod($path, 0700);
     }
 
     /**

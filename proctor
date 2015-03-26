@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 /**
- * Codeception CLI
+ * Proctor CLI
  */
 
 require_once __DIR__ . '/../../autoload.php';
@@ -13,4 +13,5 @@ $app->add(new Proctor\Command\ConfigInit('config:init'));
 $app->add(new Proctor\Command\SetupDrupal('setup:drupal'));
 $app->add(new Proctor\Command\Build('build'));
 $app->add(new Proctor\Command\UseSite('use'));
+$app->add(new Proctor\Command\Run('run'));
 $app->run();
