@@ -63,7 +63,7 @@ class Build extends Command
                     break;
 
                 default:
-                    throw new RuntimeException("Unknown fetch strategy \"{$this->config['fetch-strategy']}\"");
+                    throw new RuntimeException("Unknown fetch-strategy \"{$this->config['fetch-strategy']}\" in ~/..proctor.yml");
             }
 
             $output->writeln("<info>Done</info>");
@@ -215,7 +215,7 @@ EOF;
         $command = empty($this->config['drush-command']) ? 'drush' : $this->config['drush-command'];
         $alias = $this->siteConfig['fetch-alias'];
         if (empty($alias) || $alias[0] != '@') {
-            throw new RuntimeException("Invalid alias \"{$alias}\"");
+            throw new RuntimeException("Invalid fetch-alias \"{$alias}\" in tests/proctor/drupal.yml");
         }
 
         // Sync database.
