@@ -43,8 +43,8 @@ class UseSite extends Command
             if (file_exists('tests/behat')) {
                 $finder->in('tests/behat');
             }
-            if (file_exists('tests/codeception')) {
-                $finder->in('tests/codeception');
+            if (file_exists('tests/codecept')) {
+                $finder->in('tests/codecept');
             }
 
             $finder->name('*.yml')->name('*.yml.dist');
