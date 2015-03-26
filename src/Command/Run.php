@@ -15,7 +15,7 @@ use Symfony\Component\Process\Process;
 /**
  * Run tests.
  */
-class Run extends Command
+class Run extends ProctorCommand
 {
 
     protected $config;
@@ -28,34 +28,28 @@ class Run extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        try {
-            // Behat.
-            if (file_exists('tests/behat')) {
-                if (!file_exists('vendor/bin/behat')) {
-                    throw new RuntimeException('Could not locate behat executable.');
-                }
-                $output->writeln("<info>Running Behat tests</info>");
-                $exitCode = $this->passthrough('tests/behat', '../../vendor/bin/behat', $output);
-                if ($exitCode) {
-                    return $exitCode;
-                }
+        // Behat.
+        if (file_exists('tests/behat')) {
+            if (!file_exists('vendor/bin/behat')) {
+                throw new RuntimeException('Could not locate behat executable.');
             }
-
-            // Codeception.
-            if (file_exists('tests/codecept')) {
-                if (!file_exists('vendor/bin/codecept')) {
-                    throw new RuntimeException('Could not locate codecept executable.');
-                }
-                $output->writeln("<info>Running Codeception tests</info>");
-                $exitCode = $this->passthrough('tests/codecept', '../../vendor/bin/codecept run', $output);
-                if ($exitCode) {
-                    return $exitCode;
-                }
+            $output->writeln("<info>Running Behat tests</info>");
+            $exitCode = $this->passthrough('tests/behat', '../../vendor/bin/behat', $output);
+            if ($exitCode) {
+                return $exitCode;
             }
+        }
 
-        } catch (Exception $e) {
-            $output->writeln("<error>" . $e->getMessage() . "</error>");
-            return $e->getCode() > 0 ? $e->getCode() : 1;
+        // Codeception.
+        if (file_exists('tests/codecept')) {
+            if (!file_exists('vendor/bin/codecept')) {
+                throw new RuntimeException('Could not locate codecept executable.');
+            }
+            $output->writeln("<info>Running Codeception tests</info>");
+            $exitCode = $this->passthrough('tests/codecept', '../../vendor/bin/codecept run', $output);
+            if ($exitCode) {
+                return $exitCode;
+            }
         }
     }
 

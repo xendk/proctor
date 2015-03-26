@@ -15,12 +15,8 @@ use Symfony\Component\Process\Process;
 /**
  * Create config file.
  */
-class Build extends Command
+class Build extends ProctorCommand
 {
-
-    protected $config;
-    protected $siteConfig;
-
     protected function configure()
     {
         $this->setDescription('Build a Drupal site for testing.')
@@ -33,44 +29,39 @@ class Build extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        try {
-            if (!($coreMajor = $this->sniffDrupalMajor(getcwd()))) {
-                throw new RuntimeException('Could not determine Drupal version', 1);
-            }
-
-            if ($coreMajor !== 7) {
-                throw new RuntimeException("Drupal $coreMajor currently not supported", 1);
-            }
-
-            $this->config = Proctor::loadConfig();
-            $this->siteConfig = Proctor::loadSiteConfig();
-
-            $siteName = $input->getArgument('site');
-
-            $output->writeln("<info>Building Drupal " . $coreMajor . " site</info>");
-            $output->writeln("<info>Configuring site</info>");
-
-            $database = $this->createDatabase($siteName);
-
-            $this->{'buildDrupal' . $coreMajor}($siteName, $database);
-            $this->addToSites($siteName);
-
-            $output->writeln("<info>Syncing database and files</info>");
-
-            switch ($this->siteConfig['fetch-strategy']) {
-                case 'drush':
-                    $this->fetchDrush($siteName, $database);
-                    break;
-
-                default:
-                    throw new RuntimeException("Unknown fetch-strategy \"{$this->config['fetch-strategy']}\" in ~/..proctor.yml");
-            }
-
-            $output->writeln("<info>Done</info>");
-        } catch (Exception $e) {
-            $output->writeln("<error>" . $e->getMessage() . "</error>");
-            return $e->getCode() > 0 ? $e->getCode() : 1;
+        if (!($coreMajor = $this->sniffDrupalMajor(getcwd()))) {
+            throw new RuntimeException('Could not determine Drupal version', 1);
         }
+
+        if ($coreMajor !== 7) {
+            throw new RuntimeException("Drupal $coreMajor currently not supported", 1);
+        }
+
+        $this->requireConfig();
+        $this->requireSiteConfig();
+
+        $siteName = $input->getArgument('site');
+
+        $output->writeln("<info>Building Drupal " . $coreMajor . " site</info>");
+        $output->writeln("<info>Configuring site</info>");
+
+        $database = $this->createDatabase($siteName);
+
+        $this->{'buildDrupal' . $coreMajor}($siteName, $database);
+        $this->addToSites($siteName);
+
+        $output->writeln("<info>Syncing database and files</info>");
+
+        switch ($this->siteConfig['fetch-strategy']) {
+            case 'drush':
+                $this->fetchDrush($siteName, $database);
+                break;
+
+            default:
+                throw new RuntimeException("Unknown fetch-strategy \"{$this->config['fetch-strategy']}\" in ~/..proctor.yml");
+        }
+
+        $output->writeln("<info>Done</info>");
     }
 
     protected function sniffDrupalMajor($path)

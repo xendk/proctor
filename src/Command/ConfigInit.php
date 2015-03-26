@@ -14,7 +14,7 @@ use Symfony\Component\Yaml\Yaml;
 /**
  * Create config file.
  */
-class ConfigInit extends Command
+class ConfigInit extends ProctorCommand
 {
 
     protected function configure()
@@ -24,15 +24,14 @@ class ConfigInit extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        try {
-            $fileName = Proctor::getConfigFileName();
-            if (file_exists($fileName)) {
-                throw new RuntimeException('~/.proctor.yml already exists', 1);
+        $fileName = $this->getConfigFileName();
+        if (file_exists($fileName)) {
+            throw new RuntimeException('~/.proctor.yml already exists', 1);
 
-            }
+        }
 
-            // Not using YAML::dump() as we want to inject comments.
-            $config = <<<EOF
+        // Not using YAML::dump() as we want to inject comments.
+        $config = <<<EOF
 # Hostname for mysql server.
 mysql-hostname: localhost
 # Username for mysql.
@@ -50,13 +49,9 @@ selenium-server: ""
 # database-mapping:
 #     "/^([^.]+).([^.]+).([^.]+)$/": "$2_$1"
 EOF;
-            if (file_put_contents($fileName, $config) === false) {
-                throw new RuntimeException('Could not write ~/.proctor.yml', 1);
-            }
-            $output->writeln("<info>Created ~/.proctor.yml</info>");
-        } catch (Exception $e) {
-            $output->writeln("<error>" . $e->getMessage() . "</error>");
-            return $e->getCode() > 0 ? $e->getCode() : 1;
+        if (file_put_contents($fileName, $config) === false) {
+            throw new RuntimeException('Could not write ~/.proctor.yml', 1);
         }
+        $output->writeln("<info>Created ~/.proctor.yml</info>");
     }
 }

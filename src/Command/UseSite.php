@@ -16,7 +16,7 @@ use Symfony\Component\Finder\Finder;
  *
  * Not called use as that's a reserved word.
  */
-class UseSite extends Command
+class UseSite extends ProctorCommand
 {
 
     protected $config;
@@ -34,31 +34,26 @@ class UseSite extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        try {
-            $url = 'http://' . $input->getArgument('site');
+        $url = 'http://' . $input->getArgument('site');
 
-            $finder = new Finder();
-            $finder->files();
+        $finder = new Finder();
+        $finder->files();
 
-            if (file_exists('tests/behat')) {
-                $finder->in('tests/behat');
-            }
-            if (file_exists('tests/codecept')) {
-                $finder->in('tests/codecept');
-            }
+        if (file_exists('tests/behat')) {
+            $finder->in('tests/behat');
+        }
+        if (file_exists('tests/codecept')) {
+            $finder->in('tests/codecept');
+        }
 
-            $finder->name('*.yml')->name('*.yml.dist');
-            foreach ($finder as $file) {
-                $contents = file_get_contents($file->getPathname());
-                $contents = preg_replace('{(["\'])?https?:.*?(\\1) # proctor:host}', "\$1$url\$1 # proctor:host", $contents, -1, $count);
+        $finder->name('*.yml')->name('*.yml.dist');
+        foreach ($finder as $file) {
+            $contents = file_get_contents($file->getPathname());
+            $contents = preg_replace('{(["\'])?https?:.*?(\\1) # proctor:host}', "\$1$url\$1 # proctor:host", $contents, -1, $count);
                 if ($count) {
                     file_put_contents($file->getPathname(), $contents);
                     $output->writeln("<info>Modified " . $file->getPathname() . "</info>");
                 }
-            }
-        } catch (Exception $e) {
-            $output->writeln("<error>" . $e->getMessage() . "</error>");
-            return $e->getCode() > 0 ? $e->getCode() : 1;
         }
     }
 }
