@@ -50,7 +50,7 @@ class ProctorCommand extends Command
     /**
      * Load config.
      */
-    public function requireConfig()
+    protected function requireConfig()
     {
         $configFile = $this->getConfigFileName();
         if (!file_exists($configFile)) {
@@ -62,7 +62,7 @@ class ProctorCommand extends Command
     /**
      * Load site config.
      */
-    public function requireSiteConfig()
+    protected function requireSiteConfig()
     {
         $configFile = 'tests/proctor/drupal.yml';
         if (!file_exists($configFile)) {
