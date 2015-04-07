@@ -13,8 +13,9 @@ Feature: Building Drupal site
     mysql-hostname: myhostname
     mysql-username: myusername
     mysql-password: mypassword
-    drush-command: "echo drush >>$TESTLOG "
-    mysql-command: "echo mysql >>$TESTLOG "
+    commands:
+      drush: "echo drush >>$TESTLOG "
+      mysql: "echo mysql >>$TESTLOG "
     database-mapping:
         "/^([^.]+).([^.]+).([^.]+)$/": "$2_$1"
     """
@@ -81,8 +82,9 @@ Feature: Building Drupal site
     mysql-hostname: myhostname
     mysql-username: myusername
     mysql-password: mypassword
-    drush-command: 'echo "bad"drush && false'
-    mysql-command: 'echo "bad"mysql && false'
+    commands:
+      drush: 'echo "bad"drush && false'
+      mysql: 'echo "bad"mysql && false'
     database-mapping:
     "/^([^.]+).([^.]+).([^.]+)$/": "$2_$1"
     """

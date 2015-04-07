@@ -70,4 +70,26 @@ class ProctorCommand extends Command
         }
         $this->siteConfig =  Yaml::parse(file_get_contents($configFile));
     }
+
+    /**
+     * Get the command line for a command.
+     *
+     * Return the configured command or the default.
+     */
+    protected function getCommand($name, $default = null)
+    {
+        if (!$default) {
+            $default = $name;
+        }
+
+        if (empty($this->config)) {
+            $this->requireConfig();
+        }
+
+        if (isset($this->config['commands'][$name])) {
+            return $this->config['commands'][$name];
+        }
+
+        return $default;
+    }
 }

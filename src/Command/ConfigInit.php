@@ -40,10 +40,11 @@ mysql-username: username
 mysql-password: password
 # Path to selenium-server jar.
 selenium-server: ""
-# Command line to use for drush, if "drush" wont suffice.
-# drush-command: ""
-# Command line to use for mysql, if "mysql" wont suffice.
-# mysql-command: ""
+# Allows you to override the command lines used for external commands.
+# commands:
+#   drush: ""
+#   mysql: ""
+#   java: ""
 # This allows for mapping site names to database names. The first matching
 # pattern will be used.
 # database-mapping:
