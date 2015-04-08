@@ -252,4 +252,40 @@ class FeatureContext implements Context, SnippetAcceptingContext
             PHPUnit_Framework_Assert::assertEquals(0, $this->getExitCode());
         }
     }
+
+    /**
+     * @Given :arg1 is available in workdir
+     */
+    public function isAvailableInWorkdir($filename)
+    {
+        symlink(realpath($filename), $this->workingDir . '/' . basename($filename));
+    }
+
+    /**
+     * @Then I should see the started Selenium process
+     */
+    public function iShouldSeeTheStartedSeleniumProcess()
+    {
+        $output = $this->getOutput();
+        if (!preg_match('/PID: (\d+)/', $output, $matches)) {
+            throw new \RuntimeException('No pid in output.');
+        }
+
+        $ps_output = shell_exec('ps ' . $matches[1]);
+        print_r($ps_output);
+        PHPUnit_Framework_Assert::assertContains('selenium', $ps_output);
+    }
+
+    /**
+     * @Then I can kill the Selenium process
+     */
+    public function iCanKillTheSeleniumProcess()
+    {
+        $output = $this->getOutput();
+        if (!preg_match('/PID: (\d+)/', $output, $matches)) {
+            throw new \RuntimeException('No pid in output.');
+        }
+
+        $ps_output = shell_exec('kill ' . $matches[1]);
+    }
 }

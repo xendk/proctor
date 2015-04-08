@@ -14,4 +14,5 @@ $app->add(new Proctor\Command\SetupDrupal('setup:drupal'));
 $app->add(new Proctor\Command\Build('build'));
 $app->add(new Proctor\Command\UseSite('use'));
 $app->add(new Proctor\Command\Run('run'));
+$app->add(new Proctor\Command\Prepare('prepare'));
 $app->run();
