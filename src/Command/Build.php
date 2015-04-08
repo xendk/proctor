@@ -108,7 +108,7 @@ class Build extends ProctorCommand
         // avoid annoying mysql.
         $database = preg_replace('/[^a-z0-9_]/', '_', $database);
 
-        $command = empty($this->config['mysql-command']) ? 'mysql' : $this->config['mysql-command'];
+        $command = $this->getCommand('mysql');
 
         $command .= " -h " . $this->config['mysql-hostname'];
         $command .= " -u " . $this->config['mysql-username'];
