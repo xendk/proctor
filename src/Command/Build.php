@@ -7,6 +7,7 @@ use Proctor\Proctor;
 use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Yaml;
@@ -17,6 +18,10 @@ use Symfony\Component\Process\Process;
  */
 class Build extends ProctorCommand
 {
+    protected $input;
+
+    protected $output;
+
     protected function configure()
     {
         $this->setDescription('Build a Drupal site for testing.')
@@ -24,6 +29,12 @@ class Build extends ProctorCommand
                 'site',
                 InputArgument::REQUIRED,
                 'Site name'
+            )
+            ->addOption(
+                'print-commands',
+                'p',
+                InputOption::VALUE_NONE,
+                'Print external commands instead of invoking them'
             );
     }
 
@@ -36,6 +47,9 @@ class Build extends ProctorCommand
         if ($coreMajor !== 7) {
             throw new RuntimeException("Drupal $coreMajor currently not supported", 1);
         }
+
+        $this->input = $input;
+        $this->output = $output;
 
         $this->requireConfig();
         $this->requireSiteConfig();
@@ -210,7 +224,7 @@ EOF;
         }
 
         // Sync database.
-        $this->runCommand($command . " {$alias} sql-dump | " . $this->mysqlCommand() . ' ' . $database, 'sites/' . $siteName);
+        $this->runCommand($command . " {$alias} sql-dump | " . $this->mysqlCommand() . ' ' . $database);
 
         // Sync files.
         $this->runCommand($command . " rsync -y {$alias}:%files @self:%files", 'sites/' . $siteName);
@@ -221,10 +235,14 @@ EOF;
      */
     protected function runCommand($command, $cwd = null)
     {
-        $process = new Process($command, $cwd);
-        $process->run();
-        if ($process->getExitCode() != 0) {
-            throw new RuntimeException("Command \"{$process->getCommandLine()}\" failed\nOutput:\n{$process->getOutput()}\nError outbut:\n{$process->getErrorOutput()}");
+        if ($this->input->getOption('print-commands')) {
+            $this->output->writeln("<comment>command: " . $command . "</comment>");
+        } else {
+            $process = new Process($command, $cwd);
+            $process->run();
+            if ($process->getExitCode() != 0) {
+                throw new RuntimeException("Command \"{$process->getCommandLine()}\" failed\nOutput:\n{$process->getOutput()}\nError outbut:\n{$process->getErrorOutput()}");
+            }
         }
     }
 
