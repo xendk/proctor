@@ -63,7 +63,12 @@ class Build extends ProctorCommand
         $output->writeln("<info>Building Drupal " . $coreMajor . " site</info>");
         $output->writeln("<info>Configuring site</info>");
 
-        $database = $this->createDatabase($siteName);
+        $database = $this->databaseName($siteName);
+        // Create database.
+        $command = $this->mysqlCommand();
+        $command .= " -e \"CREATE DATABASE IF NOT EXISTS {$database};\"";
+
+        $this->runCommand($command);
 
         $this->{'buildDrupal' . $coreMajor}($siteName, $database);
         $this->addToSites($siteName);
@@ -103,9 +108,9 @@ class Build extends ProctorCommand
     }
 
     /**
-     * Figure out the database name for a site and create it.
+     * Figure out the database name for a site.
      */
-    protected function createDatabase($siteName)
+    protected function databaseName($siteName)
     {
         $patterns = array();
         if (isset($this->config['database-mapping']) &&
@@ -126,11 +131,6 @@ class Build extends ProctorCommand
         // Replace anything but alphanumeric and underscore with underscore to
         // avoid annoying mysql.
         $database = preg_replace('/[^a-z0-9_]/', '_', $database);
-        $command = $this->mysqlCommand();
-        $command .= " -e \"CREATE DATABASE IF NOT EXISTS {$database};\"";
-
-        // Create database.
-        $this->runCommand($command);
 
         return $database;
     }
