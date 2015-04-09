@@ -158,7 +158,7 @@ class Build extends ProctorCommand
                     'driver' => 'mysql',
                     'database' => $database,
                     'username' => $this->config['mysql-username'],
-                    'password' => $this->config['mysql-password'],
+                    'password' => !empty($this->config['mysql-password']) ? $this->config['mysql-password'] : '',
                     'host' => $this->config['mysql-hostname'],
                     'port' => '',
                     'prefix' => '',
