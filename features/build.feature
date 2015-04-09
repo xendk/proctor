@@ -171,7 +171,7 @@ Feature: Building Drupal site
     Done
     """
     
-  Scenario: CircleCI
+  Scenario: Building on CircleCI
     Given "includes/bootstrap.inc" contains:
     """
     define('VERSION', '7.34');
@@ -187,9 +187,9 @@ Feature: Building Drupal site
     """
     Building Drupal 7 site
     Configuring site
-    command: mysql -u ubuntu -e "CREATE DATABASE IF NOT EXISTS circle_test;"
+    command: mysql -h 127.0.0.1 -u ubuntu -e "CREATE DATABASE IF NOT EXISTS circle_test;"
     Syncing database and files
-    command: drush @reality sql-dump | mysql -u ubuntu circle_test
+    command: drush @reality sql-dump | mysql -h 127.0.0.1 -u ubuntu circle_test
     command: drush rsync -y @reality:%files files
     command: drush rsync -y @reality:%private private
     command: drush cc all

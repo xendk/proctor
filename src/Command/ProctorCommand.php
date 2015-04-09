@@ -81,6 +81,7 @@ class ProctorCommand extends Command
         $this->config = $this->normalizeConfig(array(
             'mysql' => array(
                 'user' => 'ubuntu',
+                'host' => '127.0.0.1',
             ),
             'database-mapping' => array(
                 '/^(.*)$/' => 'circle_test',
