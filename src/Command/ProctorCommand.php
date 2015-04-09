@@ -60,6 +60,20 @@ class ProctorCommand extends Command
     }
 
     /**
+     * Use CircleCI config.
+     */
+    protected function circleConfig()
+    {
+        $this->config = array(
+            'mysql-hostname' => 'localhost',
+            'mysql-username' =>  'ubuntu',
+            'database-mapping' => array(
+                '/^(.*)$/' => 'circle_test',
+            ),
+        );
+    }
+
+    /**
      * Load site config.
      */
     protected function requireSiteConfig()

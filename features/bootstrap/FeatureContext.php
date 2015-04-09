@@ -13,6 +13,8 @@ use Symfony\Component\Process\Process;
  */
 class FeatureContext implements Context, SnippetAcceptingContext
 {
+    protected $env = array();
+
     /**
      * Initializes context.
      *
@@ -59,7 +61,9 @@ class FeatureContext implements Context, SnippetAcceptingContext
         $this->phpBin = $php;
         $this->process = new Process(null);
         // Set the env variable for home.
-        $this->process->setEnv(array('HOME' => $dir . '/home'));
+        $this->env['HOME'] = $dir . '/home';
+        $this->env['TESTLOG'] = $this->workingDir . '/test.log';
+
     }
 
     private function getOutput()
@@ -119,7 +123,7 @@ class FeatureContext implements Context, SnippetAcceptingContext
         if (!defined('HHVM_VERSION')) {
             $env['LANG'] = 'en'; // Ensures that the default language is en, whatever the OS locale is.
         }
-        $env['TESTLOG'] = $this->workingDir . '/test.log';
+        $env = $this->env + $env;
         $this->process->setEnv($env);
 
         $this->process->start();
@@ -287,5 +291,13 @@ class FeatureContext implements Context, SnippetAcceptingContext
         }
 
         $ps_output = shell_exec('kill ' . $matches[1]);
+    }
+
+    /**
+     * @Given the env variable :var contains :value
+     */
+    public function theEnvVariableContains($var, $value)
+    {
+        $this->env[$var] = $value;
     }
 }

@@ -51,7 +51,11 @@ class Build extends ProctorCommand
         $this->input = $input;
         $this->output = $output;
 
-        $this->requireConfig();
+        if (getenv('CIRCLECI')) {
+            $this->circleConfig();
+        } else {
+            $this->requireConfig();
+        }
         $this->requireSiteConfig();
 
         $siteName = $input->getArgument('site');

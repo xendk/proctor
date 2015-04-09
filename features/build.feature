@@ -161,3 +161,25 @@ Feature: Building Drupal site
     Done
     """
     
+  Scenario: CircleCI
+    Given "includes/bootstrap.inc" contains:
+    """
+    define('VERSION', '7.34');
+    """
+    And the env variable "CIRCLECI" contains "true"
+    And "tests/proctor/drupal.yml" contains:
+    """
+    fetch-strategy: drush
+    fetch-alias: @reality
+    """
+    When I run "proctor build -p test.site.dev"
+    Then it should pass with:
+    """
+    Building Drupal 7 site
+    Configuring site
+    command: mysql -h localhost -u ubuntu -e "CREATE DATABASE IF NOT EXISTS circle_test;"
+    Syncing database and files
+    command: drush @reality sql-dump | mysql -h localhost -u ubuntu circle_test
+    command: drush rsync -y @reality:%files @self:%files
+    Done
+    """
