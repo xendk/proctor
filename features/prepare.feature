@@ -30,3 +30,13 @@ Feature: Starting Selenium up for testing
     Please download Selenium Server from http://www.seleniumhq.org/download/ and add the location of the jar file to ~/.proctor.yml
     """
     
+  Scenario: Fetching of Selenium
+    When I run "proctor prepare -f -s ./ "
+    Then it should pass with:
+    """
+    Fetching http://selenium-release.storage.googleapis.com/2.45/selenium-server-standalone-2.45.0.jar
+    Starting Selenium server
+    Server started, PID:
+    """
+    And I should see the started Selenium process
+    And I can kill the Selenium process

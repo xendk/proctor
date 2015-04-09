@@ -63,6 +63,17 @@ class ProctorCommand extends Command
     }
 
     /**
+     * Load config if there is one.
+     */
+    protected function optionalConfig() {
+        try {
+            $this->requireConfig();
+        } catch (Exception $e) {
+            $this->config = array();
+        }
+    }
+
+    /**
      * Use CircleCI config.
      */
     protected function circleConfig()
@@ -124,7 +135,7 @@ class ProctorCommand extends Command
             $default = $name;
         }
 
-        if (empty($this->config)) {
+        if (is_null($this->config)) {
             $this->requireConfig();
         }
 
