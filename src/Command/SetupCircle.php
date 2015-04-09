@@ -48,8 +48,8 @@ EOF
         $phpVersion = null;
         if (file_exists('circle.yml')) {
             $circle = Yaml::parse(file_get_contents('circle.yml'));
-            if (isset($circle['machine']['environment']['php']['version'])) {
-                $phpVersion = $circle['machine']['environment']['php']['version'];
+            if (isset($circle['machine']['php']['version'])) {
+                $phpVersion = $circle['machine']['php']['version'];
             }
         }
 

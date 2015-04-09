@@ -7,9 +7,8 @@ Feature: Cicle CI setup
     Given "circle.yml" contains:
     """
     machine:
-      environment:
-        php:
-          version: 5.4.21
+      php:
+        version: 5.4.21
     """
     And "sites/default" contains:
     """
