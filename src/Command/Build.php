@@ -123,11 +123,7 @@ EOF
      */
     protected function databaseName($siteName)
     {
-        $patterns = array();
-        if (isset($this->config['database-mapping']) &&
-            is_array($this->config['database-mapping'])) {
-            $patterns = $this->config['database-mapping'];
-        }
+        $patterns = $this->config['database-mapping'];
         // Default to prepend "proctor_" to the site name.
         $patterns += array('/^(.*)$/' => 'proctor_$1');
 
@@ -172,9 +168,9 @@ EOF
                 'default' => array(
                     'driver' => 'mysql',
                     'database' => $database,
-                    'username' => $this->config['mysql-username'],
-                    'password' => !empty($this->config['mysql-password']) ? $this->config['mysql-password'] : '',
-                    'host' => $this->config['mysql-hostname'],
+                    'username' => $this->config['mysql']['user'],
+                    'password' => $this->config['mysql']['pass'],
+                    'host' => $this->config['mysql']['host'],
                     'port' => '',
                     'prefix' => '',
                 ),
@@ -260,15 +256,15 @@ EOF;
     {
         $command = $this->getCommand('mysql');
 
-        if (isset($this->config['mysql-hostname'])) {
-            $command .= " -h " . $this->config['mysql-hostname'];
+        if (!empty($this->config['mysql']['host'])) {
+            $command .= " -h " . $this->config['mysql']['host'];
         }
-        if (isset($this->config['mysql-username'])) {
-            $command .= " -u " . $this->config['mysql-username'];
+        if (!empty($this->config['mysql']['user'])) {
+            $command .= " -u " . $this->config['mysql']['user'];
         }
 
-        if (isset($this->config['mysql-password'])) {
-            $command .= " -p" . $this->config['mysql-password'];
+        if (!empty($this->config['mysql']['pass'])) {
+            $command .= " -p" . $this->config['mysql']['pass'];
         }
 
         return $command;

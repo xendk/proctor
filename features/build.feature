@@ -10,9 +10,10 @@ Feature: Building Drupal site
     """
     And "~/.proctor.yml" contains:
     """
-    mysql-hostname: myhostname
-    mysql-username: myusername
-    mysql-password: mypassword
+    mysql:
+      host: myhostname
+      user: myusername
+      pass: mypassword
     commands:
       drush: "echo drush >>$TESTLOG "
       mysql: "echo mysql >>$TESTLOG "
@@ -68,9 +69,10 @@ Feature: Building Drupal site
     """
     And "~/.proctor.yml" contains:
     """
-    mysql-hostname: myhostname
-    mysql-username: myusername
-    mysql-password: mypassword
+    mysql:
+      host: myhostname
+      user: myusername
+      pass: mypassword
     commands:
       drush: "echo drush >>$TESTLOG "
       mysql: "echo mysql >>$TESTLOG "
@@ -114,9 +116,10 @@ Feature: Building Drupal site
     # match the command line itself, but only its output.
     And "~/.proctor.yml" contains:
     """
-    mysql-hostname: myhostname
-    mysql-username: myusername
-    mysql-password: mypassword
+    mysql:
+      host: myhostname
+      user: myusername
+      pass: mypassword
     commands:
       drush: 'echo "bad"drush && false'
       mysql: 'echo "bad"mysql && false'
@@ -138,9 +141,10 @@ Feature: Building Drupal site
     """
     And "~/.proctor.yml" contains:
     """
-    mysql-hostname: myhostname
-    mysql-username: myusername
-    mysql-password: mypassword
+    mysql:
+      host: myhostname
+      user: myusername
+      pass: mypassword
     database-mapping:
       "/^([^.]+).([^.]+).([^.]+)$/": "$2_$1"
     """
@@ -177,9 +181,9 @@ Feature: Building Drupal site
     """
     Building Drupal 7 site
     Configuring site
-    command: mysql -h localhost -u ubuntu -e "CREATE DATABASE IF NOT EXISTS circle_test;"
+    command: mysql -u ubuntu -e "CREATE DATABASE IF NOT EXISTS circle_test;"
     Syncing database and files
-    command: drush @reality sql-dump | mysql -h localhost -u ubuntu circle_test
+    command: drush @reality sql-dump | mysql -u ubuntu circle_test
     command: drush rsync -y @reality:%files @self:%files
     Done
     """

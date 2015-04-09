@@ -11,12 +11,11 @@ Feature: Config init
     """
     And "~/.proctor.yml" should contain:
     """
-    # Hostname for mysql server.
-    mysql-hostname: localhost
-    # Username for mysql.
-    mysql-username: username
-    # Password for mysql.
-    mysql-password: password
+    # MySQL/MariaDB credentials for creating test site databases.
+    mysql:
+      host: localhost
+      user: username
+      pass: pass
     # Path to selenium-server jar.
     selenium-server: ""
     # Allows you to override the command lines used for external commands.

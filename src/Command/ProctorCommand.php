@@ -56,7 +56,7 @@ class ProctorCommand extends Command
         if (!file_exists($configFile)) {
             throw new RuntimeException('Global configuration not found, please run proctor config:init', 1);
         }
-        $this->config = Yaml::parse(file_get_contents($configFile));
+        $this->config = $this->normalizeConfig(Yaml::parse(file_get_contents($configFile)));
     }
 
     /**
@@ -64,13 +64,38 @@ class ProctorCommand extends Command
      */
     protected function circleConfig()
     {
-        $this->config = array(
-            'mysql-hostname' => 'localhost',
-            'mysql-username' =>  'ubuntu',
+        $this->config = $this->normalizeConfig(array(
+            'mysql' => array(
+                'user' => 'ubuntu',
+            ),
             'database-mapping' => array(
                 '/^(.*)$/' => 'circle_test',
             ),
+        ));
+    }
+
+    /**
+     * Normalize configuration.
+     */
+    protected function normalizeConfig($config)
+    {
+        if (empty($config['mysql']) ||
+            !is_array($config['mysql'])) {
+            $config['mysql'] = array();
+        }
+
+        $config['mysql'] += array(
+            'host' => '',
+            'user' => '',
+            'pass' => '',
         );
+
+        if (empty($config['database-mapping']) ||
+            !is_array($config['database-mapping'])) {
+            $config['database-mapping'] = array();
+        }
+
+        return $config;
     }
 
     /**
