@@ -59,7 +59,9 @@ Feature: Building Drupal site
     mysql -h myhostname -u myusername -pmypassword -e CREATE DATABASE IF NOT EXISTS site_test;
     drush @reality sql-dump
     mysql -h myhostname -u myusername -pmypassword site_test
-    drush rsync -y @reality:%files @self:%files
+    drush rsync -y @reality:%files files
+    drush rsync -y @reality:%private private
+    drush cc all
     """
 
   Scenario: Running commands
@@ -95,7 +97,9 @@ Feature: Building Drupal site
     mysql -h myhostname -u myusername -pmypassword -e CREATE DATABASE IF NOT EXISTS site_test;
     drush @reality sql-dump
     mysql -h myhostname -u myusername -pmypassword site_test
-    drush rsync -y @reality:%files @self:%files
+    drush rsync -y @reality:%files files
+    drush rsync -y @reality:%private private
+    drush cc all
     """
 
   Scenario: Fail on missing config file
@@ -161,7 +165,9 @@ Feature: Building Drupal site
     command: mysql -h myhostname -u myusername -pmypassword -e "CREATE DATABASE IF NOT EXISTS site_test;"
     Syncing database and files
     command: drush @reality sql-dump | mysql -h myhostname -u myusername -pmypassword site_test
-    command: drush rsync -y @reality:%files @self:%files
+    command: drush rsync -y @reality:%files files
+    command: drush rsync -y @reality:%private private
+    command: drush cc all
     Done
     """
     
@@ -184,6 +190,8 @@ Feature: Building Drupal site
     command: mysql -u ubuntu -e "CREATE DATABASE IF NOT EXISTS circle_test;"
     Syncing database and files
     command: drush @reality sql-dump | mysql -u ubuntu circle_test
-    command: drush rsync -y @reality:%files @self:%files
+    command: drush rsync -y @reality:%files files
+    command: drush rsync -y @reality:%private private
+    command: drush cc all
     Done
     """

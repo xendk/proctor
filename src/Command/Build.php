@@ -186,11 +186,19 @@ ini_set('session.gc_divisor', 100);
 ini_set('session.gc_maxlifetime', 200000);
 ini_set('session.cookie_lifetime', 2000000);
 
+\$conf['file_public_path'] = 'sites/$siteName/files';
+\$conf['file_private_path'] = 'sites/$siteName/private';
+# Hardcoded to until someone makes an issue out of it.
+\$conf['file_temporary_path'] = '/tmp';
+
 EOF;
 
         if (!file_put_contents($settingsFile, $settings)) {
             throw new RuntimeException("Could not write $settingsFile", 1);
         }
+
+        mkdir('sites/' . $siteName . '/files');
+        mkdir('sites/' . $siteName . '/private');
     }
 
     /**
@@ -226,7 +234,11 @@ EOF;
         $this->runCommand($command . " {$alias} sql-dump | " . $this->mysqlCommand() . ' ' . $database);
 
         // Sync files.
-        $this->runCommand($command . " rsync -y {$alias}:%files @self:%files", 'sites/' . $siteName);
+        $this->runCommand($command . " rsync -y {$alias}:%files files", 'sites/' . $siteName);
+        $this->runCommand($command . " rsync -y {$alias}:%private private", 'sites/' . $siteName);
+
+        // Clear cache.
+        $this->runCommand($command . " cc all");
     }
 
     /**
