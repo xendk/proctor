@@ -99,7 +99,7 @@ EOF
         // from PHP, so we'll let the shell do it.
         $close_descriptors = '3>&- 4>&- 5>&- 6>&- 7>&- 8>&- 9>&-';
         // 3>&- 4>&-
-        $output = exec(sprintf('%s </dev/null >/tmp/selenium-server.log 2>&1 ' . $close_descriptors . ' & echo $!', $command));
+        $output = exec(sprintf('%s </dev/null >>/tmp/selenium-server.log 2>&1 ' . $close_descriptors . ' & echo $!', $command));
 
         if (preg_match('/\d+/', $output)) {
             return $output;
