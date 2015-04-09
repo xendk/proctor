@@ -35,6 +35,17 @@ class Build extends ProctorCommand
                 'p',
                 InputOption::VALUE_NONE,
                 'Print external commands instead of invoking them'
+            )
+            ->setHelp(<<<EOF
+The <info>%command.name%</info> command builds a site:
+
+  <info>%command.full_name% default</info>
+
+Creates a new Drupal multi-site, creates the database and populates it with
+database and files from the source configured with:
+
+  <info>%command.full_name% setup:drupal</info>
+EOF
             );
     }
 

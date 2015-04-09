@@ -18,7 +18,15 @@ class Prepare extends ProctorCommand
 {
     protected function configure()
     {
-        $this->setDescription('Build a Drupal site for testing.');
+        $this->setDescription('Prepare Selenium Server for testing.')
+            ->setHelp(<<<EOF
+The <info>%command.name%</info> starts up Selenium Server:
+
+  <info>%command.full_name%</info>
+
+The Selenium JAR to use can be configured in the global configuration file.
+EOF
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

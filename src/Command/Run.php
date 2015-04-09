@@ -23,7 +23,15 @@ class Run extends ProctorCommand
 
     protected function configure()
     {
-        $this->setDescription('Build a Drupal site for testing.');
+        $this->setDescription('Run tests.')
+            ->setHelp(<<<EOF
+The <info>%command.name%</info> runs tests:
+
+  <info>%command.full_name%</info>
+
+Runs all tests found in tests/behat and tests/codecept.
+EOF
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

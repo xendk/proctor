@@ -29,6 +29,18 @@ class UseSite extends ProctorCommand
                 'site',
                 InputArgument::REQUIRED,
                 'Site name'
+            )
+            ->setHelp(<<<EOF
+The <info>%command.name%</info> modifies tests to run against a specific site:
+
+  <info>%command.full_name%</info>
+
+Modifies Behat and Codeception YAML files to point them at the hostname given
+as argument.
+
+Any URLs in the YAML files marked with " # proctor:host" at the end of the line
+will be replaced with the new URL.
+EOF
             );
     }
 

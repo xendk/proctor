@@ -19,7 +19,16 @@ class ConfigInit extends ProctorCommand
 
     protected function configure()
     {
-        $this->setDescription('Creates stub ~/.proctor.yml config file.');
+        $this->setDescription('Creates stub ~/.proctor.yml config file.')
+            ->setHelp(<<<EOF
+The <info>%command.name%</info> creates a stub global configuration file:
+
+  <info>%command.full_name%</info>
+
+The global configuration file provides credentials for mysql and allows for
+overriding of the commands invoked.
+EOF
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

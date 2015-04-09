@@ -22,6 +22,15 @@ class SetupDrupal extends ProctorCommand
                 'alias',
                 InputArgument::REQUIRED,
                 'Alias to sync database and files from'
+            )
+            ->setHelp(<<<EOF
+The <info>%command.name%</info> creates a Drupal configuration file:
+
+  <info>%command.full_name%</info>
+
+Creates a configuration file with information about which Drush alias to
+synchronize database and files from.
+EOF
             );
     }
 
