@@ -11,7 +11,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Yaml;
-use Symfony\Component\Process\Process;
 
 /**
  * Create config file.
@@ -58,9 +57,6 @@ EOF
         if ($coreMajor !== 7) {
             throw new RuntimeException("Drupal $coreMajor currently not supported", 1);
         }
-
-        $this->input = $input;
-        $this->output = $output;
 
         if (getenv('CIRCLECI')) {
             $this->circleConfig();
@@ -231,22 +227,6 @@ EOF;
 
         // Sync files.
         $this->runCommand($command . " rsync -y {$alias}:%files @self:%files", 'sites/' . $siteName);
-    }
-
-    /**
-     * Run a command.
-     */
-    protected function runCommand($command, $cwd = null)
-    {
-        if ($this->input->getOption('print-commands')) {
-            $this->output->writeln("<comment>command: " . $command . "</comment>");
-        } else {
-            $process = new Process($command, $cwd);
-            $process->run();
-            if ($process->getExitCode() != 0) {
-                throw new RuntimeException("Command \"{$process->getCommandLine()}\" failed\nOutput:\n{$process->getOutput()}\nError outbut:\n{$process->getErrorOutput()}");
-            }
-        }
     }
 
     /**

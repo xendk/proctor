@@ -9,6 +9,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Process\Process;
 
 /**
  * Base class for Proctor commands.
@@ -30,6 +31,8 @@ class ProctorCommand extends Command
      */
     public function run(InputInterface $input, OutputInterface $output)
     {
+        $this->input = $input;
+        $this->output = $output;
         try {
             return parent::run($input, $output);
 
@@ -130,5 +133,21 @@ class ProctorCommand extends Command
         }
 
         return $default;
+    }
+
+    /**
+     * Run a command.
+     */
+    protected function runCommand($command, $cwd = null)
+    {
+        if ($this->input->getOption('print-commands')) {
+            $this->output->writeln("<comment>command: " . $command . "</comment>");
+        } else {
+            $process = new Process($command, $cwd);
+            $process->run();
+            if ($process->getExitCode() != 0) {
+                throw new RuntimeException("Command \"{$process->getCommandLine()}\" failed\nOutput:\n{$process->getOutput()}\nError outbut:\n{$process->getErrorOutput()}");
+            }
+        }
     }
 }
