@@ -109,7 +109,8 @@ class Build extends ProctorCommand
             $patterns = $this->config['database-mapping'];
         }
         // Default to prepend "proctor_" to the site name.
-        $patterns['/^(.*)$/'] = 'proctor_$1';
+        $patterns += array('/^(.*)$/' => 'proctor_$1');
+
         $database = $siteName;
         foreach ($patterns as $pattern => $replacement) {
             if (preg_match($pattern, $siteName)) {
