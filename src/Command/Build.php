@@ -121,17 +121,8 @@ class Build extends ProctorCommand
         // Replace anything but alphanumeric and underscore with underscore to
         // avoid annoying mysql.
         $database = preg_replace('/[^a-z0-9_]/', '_', $database);
-
-        $command = $this->getCommand('mysql');
-
-        $command .= " -h " . $this->config['mysql-hostname'];
-        $command .= " -u " . $this->config['mysql-username'];
-        $command .= " -p" . $this->config['mysql-password'];
-
         $command = $this->mysqlCommand();
         $command .= " -e \"CREATE DATABASE IF NOT EXISTS {$database};\"";
-
-
 
         // Create database.
         $this->runCommand($command);
