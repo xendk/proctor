@@ -78,10 +78,7 @@ EOF
             $seleniumServer = $this->config['selenium-server'];
         }
 
-        $java = $this->getCommand('java');
-        $java = trim(shell_exec('which ' . $java));
-
-        $command = $java . ' -jar ' . $seleniumServer;
+        $command = $this->getCommand('java') . ' -jar ' . $seleniumServer;
 
         $output->writeln('<info>Starting Selenium server</info>');
         $pid = $this->startProcess($command);
