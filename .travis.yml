@@ -8,6 +8,7 @@ php:
   - nightly
 
 before_install: composer selfupdate
+
 install: composer install
 
 script: ./vendor/bin/behat
