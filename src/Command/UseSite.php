@@ -62,10 +62,10 @@ EOF
         foreach ($finder as $file) {
             $contents = file_get_contents($file->getPathname());
             $contents = preg_replace('{(["\'])?https?:.*?(\\1) # proctor:host}', "\$1$url\$1 # proctor:host", $contents, -1, $count);
-                if ($count) {
-                    file_put_contents($file->getPathname(), $contents);
-                    $output->writeln("<info>Modified " . $file->getPathname() . "</info>");
-                }
+            if ($count > 0) {
+                file_put_contents($file->getPathname(), $contents);
+                $output->writeln("<info>Modified " . $file->getPathname() . "</info>");
+            }
         }
     }
 }

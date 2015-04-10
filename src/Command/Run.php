@@ -43,7 +43,7 @@ EOF
             }
             $output->writeln("<info>Running Behat tests</info>");
             $exitCode = $this->passthrough('tests/behat', '../../vendor/bin/behat', $output);
-            if ($exitCode) {
+            if ($exitCode !== 0) {
                 return $exitCode;
             }
         }
@@ -55,7 +55,7 @@ EOF
             }
             $output->writeln("<info>Running Codeception tests</info>");
             $exitCode = $this->passthrough('tests/codecept', '../../vendor/bin/codecept run', $output);
-            if ($exitCode) {
+            if ($exitCode !== 0) {
                 return $exitCode;
             }
         }
