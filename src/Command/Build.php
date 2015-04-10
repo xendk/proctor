@@ -197,8 +197,12 @@ EOF;
             throw new RuntimeException("Could not write $settingsFile", 1);
         }
 
-        mkdir('sites/' . $siteName . '/files');
-        mkdir('sites/' . $siteName . '/private');
+        if (!file_exists('sites/' . $siteName . '/files')) {
+            mkdir('sites/' . $siteName . '/files');
+        }
+        if (!file_exists('sites/' . $siteName . '/private')) {
+            mkdir('sites/' . $siteName . '/private');
+        }
     }
 
     /**
