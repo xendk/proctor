@@ -14,9 +14,6 @@ Feature: Building Drupal site
       host: myhostname
       user: myusername
       pass: mypassword
-    commands:
-      drush: "echo drush >>$TESTLOG "
-      mysql: "echo mysql >>$TESTLOG "
     database-mapping:
         "/^([^.]+).([^.]+).([^.]+)$/": "$2_$1"
     """
@@ -25,8 +22,19 @@ Feature: Building Drupal site
     fetch-strategy: drush
     fetch-alias: @reality
     """
-    When I run "proctor build test.site.dev"
-    Then it should pass with "Building Drupal 7 site"
+    When I run "proctor build test.site.dev -p"
+    Then it should pass with:
+    """
+    Building Drupal 7 site
+    Configuring site
+    command: mysql -h myhostname -u myusername -pmypassword -e "CREATE DATABASE IF NOT EXISTS site_test;"
+    Syncing database and files
+    command: drush @reality sql-dump | mysql -h myhostname -u myusername -pmypassword site_test
+    command: drush rsync -y @reality:%files files
+    command: drush rsync -y @reality:%private private
+    command: drush cc all
+    Done
+    """
     And "sites/test.site.dev/settings.php" should contain the string:
     """
     $databases = array (
@@ -54,15 +62,6 @@ Feature: Building Drupal site
     <?php
     $sites['test.site.dev'] = 'test.site.dev';
     """
-    And "test.log" should contain:
-    """
-    mysql -h myhostname -u myusername -pmypassword -e CREATE DATABASE IF NOT EXISTS site_test;
-    drush @reality sql-dump
-    mysql -h myhostname -u myusername -pmypassword site_test
-    drush rsync -y @reality:%files files
-    drush rsync -y @reality:%private private
-    drush cc all
-    """
 
   Scenario: Running commands
     Given "includes/bootstrap.inc" contains:
@@ -75,9 +74,6 @@ Feature: Building Drupal site
       host: myhostname
       user: myusername
       pass: mypassword
-    commands:
-      drush: "echo drush >>$TESTLOG "
-      mysql: "echo mysql >>$TESTLOG "
     database-mapping:
       "/^([^.]+).([^.]+).([^.]+)$/": "$2_$1"
     """
@@ -86,20 +82,23 @@ Feature: Building Drupal site
     fetch-strategy: drush
     fetch-alias: @reality
     """
-    When I run "proctor build test.site.dev"
-    Then it should pass with "Building Drupal 7 site"
+    When I run "proctor build test.site.dev -p"
+    Then it should pass with:
+    """
+    Building Drupal 7 site
+    Configuring site
+    command: mysql -h myhostname -u myusername -pmypassword -e "CREATE DATABASE IF NOT EXISTS site_test;"
+    Syncing database and files
+    command: drush @reality sql-dump | mysql -h myhostname -u myusername -pmypassword site_test
+    command: drush rsync -y @reality:%files files
+    command: drush rsync -y @reality:%private private
+    command: drush cc all
+    Done
+    """
+    
     And "sites/test.site.dev/settings.php" should contain the string:
     """
     $drupal_hash_salt = '';
-    """
-    And "test.log" should contain:
-    """
-    mysql -h myhostname -u myusername -pmypassword -e CREATE DATABASE IF NOT EXISTS site_test;
-    drush @reality sql-dump
-    mysql -h myhostname -u myusername -pmypassword site_test
-    drush rsync -y @reality:%files files
-    drush rsync -y @reality:%private private
-    drush cc all
     """
 
   Scenario: Fail on missing config file
