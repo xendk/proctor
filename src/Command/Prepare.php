@@ -83,14 +83,14 @@ EOF
         $output->writeln('<info>Starting Selenium server</info>');
         $pid = $this->startProcess($command);
 
-        if ($pid) {
+        if (!empty($pid)) {
             $output->writeln('<info>Server started, PID: ' . $pid . '</info>');
         } else {
             throw new RuntimeException("Problem starting $command", 1);
         }
     }
 
-    protected function startProcess($command, $args = null)
+    protected function startProcess($command)
     {
         // This closes any file descriptors above 2. The problem is that
         // proc_open (in Behat tests) leaks the file descriptors it uses to
@@ -98,7 +98,6 @@ EOF
         // long as the java process runs. There's no way to clean up this mess
         // from PHP, so we'll let the shell do it.
         $close_descriptors = '3>&- 4>&- 5>&- 6>&- 7>&- 8>&- 9>&-';
-        // 3>&- 4>&-
         $output = exec(sprintf('%s </dev/null >>/tmp/selenium-server.log 2>&1 ' . $close_descriptors . ' & echo $!', $command));
 
         if (preg_match('/\d+/', $output)) {
