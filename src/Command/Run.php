@@ -67,7 +67,7 @@ EOF
     protected function passthrough($directory, $command, $output)
     {
         $process = new Process($command, $directory);
-        return $process->run(function ($type, $buffer) use ($output) {
+        return $process->run(function($type, $buffer) use ($output) {
                 if (Process::ERR === $type) {
                     $output->getErrorOutput()->write($buffer);
                 } else {

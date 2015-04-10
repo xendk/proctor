@@ -125,7 +125,7 @@ class ProctorCommand extends Command
         if (!file_exists($configFile)) {
             throw new RuntimeException('Site configuration not found, please run proctor setup:drupal', 1);
         }
-        $this->siteConfig =  Yaml::parse(file_get_contents($configFile));
+        $this->siteConfig = Yaml::parse(file_get_contents($configFile));
     }
 
     /**

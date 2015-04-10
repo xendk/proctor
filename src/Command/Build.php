@@ -224,7 +224,7 @@ EOF;
      */
     protected function fetchDrush($siteName, $database)
     {
-        $command  = $this->getCommand('drush');
+        $command = $this->getCommand('drush');
         $alias = $this->siteConfig['fetch-alias'];
         if (empty($alias) || $alias[0] != '@') {
             throw new RuntimeException("Invalid fetch-alias \"{$alias}\" in tests/proctor/drupal.yml");
@@ -249,9 +249,9 @@ EOF;
         $command = $this->getCommand('mysql');
 
         $options = array(
-          '--host' => 'host',
-          '--user' => 'user',
-          '--password' => 'pass',
+            '--host' => 'host',
+            '--user' => 'user',
+            '--password' => 'pass',
         );
         foreach ($options as $switch => $key) {
             if (!empty($this->config['mysql'][$key])) {
