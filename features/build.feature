@@ -15,7 +15,7 @@ Feature: Building Drupal site
       user: myusername
       pass: mypassword
     database-mapping:
-        "/^([^.]+).([^.]+).([^.]+)$/": "$2_$1"
+      "/^([^.]+).([^.]+).([^.]+)$/": "$2_$1"
     """
     And "tests/proctor/drupal.yml" contains:
     """
