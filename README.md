@@ -68,7 +68,7 @@ switch to download it.
 
 Run:
 
-    ./vendor/bin/proctor running
+    ./vendor/bin/proctor run
 
 To run all tests locally.
 
