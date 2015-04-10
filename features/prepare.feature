@@ -3,20 +3,20 @@ Feature: Starting Selenium up for testing
   As a user
   I need to start Selenium Server
 
-  Scenario: Starting the server
-    Given "~/.proctor.yml" contains:
-    """
-    selenium-server: './selenium-server-standalone-2.42.2.jar'
-    """
-    And "selenium-server-standalone-2.42.2.jar" is available in workdir
-    When I run "proctor prepare"
-    Then it should pass with:
-    """
-    Starting Selenium server
-    Server started, PID:
-    """
-    And I should see the started Selenium process
-    And I can kill the Selenium process
+  # Scenario: Starting the server
+  #   Given "~/.proctor.yml" contains:
+  #   """
+  #   selenium-server: './selenium-server-standalone-2.42.2.jar'
+  #   """
+  #   And "selenium-server-standalone-2.42.2.jar" is available in workdir
+  #   When I run "proctor prepare"
+  #   Then it should pass with:
+  #   """
+  #   Starting Selenium server
+  #   Server started, PID:
+  #   """
+  #   And I should see the started Selenium process
+  #   And I can kill the Selenium process
     
   Scenario: Missing configuration
     Given "~/.proctor.yml" contains:
