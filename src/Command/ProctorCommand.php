@@ -16,6 +16,9 @@ use Symfony\Component\Process\Process;
  */
 class ProctorCommand extends Command
 {
+    protected $input = null;
+    protected $output = null;
+
     /**
      * Global configuration, if loaded.
      */
@@ -157,7 +160,7 @@ class ProctorCommand extends Command
         } else {
             $process = new Process($command, $cwd);
             $process->run();
-            if ($process->getExitCode() != 0) {
+            if ($process->getExitCode() !== 0) {
                 throw new RuntimeException("Command \"{$process->getCommandLine()}\" failed\nOutput:\n{$process->getOutput()}\nError outbut:\n{$process->getErrorOutput()}");
             }
         }
