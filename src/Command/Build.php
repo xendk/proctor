@@ -248,15 +248,15 @@ EOF;
     {
         $command = $this->getCommand('mysql');
 
-        if (!empty($this->config['mysql']['host'])) {
-            $command .= " -h " . $this->config['mysql']['host'];
-        }
-        if (!empty($this->config['mysql']['user'])) {
-            $command .= " -u " . $this->config['mysql']['user'];
-        }
-
-        if (!empty($this->config['mysql']['pass'])) {
-            $command .= " -p" . $this->config['mysql']['pass'];
+        $options = array(
+          '--host' => 'host',
+          '--user' => 'user',
+          '--password' => 'pass',
+        );
+        foreach ($options as $switch => $key) {
+            if (!empty($this->config['mysql'][$key])) {
+                $command .= ' ' . $switch . '=' . $this->config['mysql'][$key];
+            }
         }
 
         return $command;
