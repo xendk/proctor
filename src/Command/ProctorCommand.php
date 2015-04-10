@@ -159,6 +159,8 @@ class ProctorCommand extends Command
             $this->output->writeln("<comment>command: " . $command . "</comment>");
         } else {
             $process = new Process($command, $cwd);
+            // Raise timeout, dumping can be time consuming.
+            $process->setTimeout(300);
             $process->run();
             if ($process->getExitCode() !== 0) {
                 throw new RuntimeException("Command \"{$process->getCommandLine()}\" failed\nOutput:\n{$process->getOutput()}\nError outbut:\n{$process->getErrorOutput()}");
