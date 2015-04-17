@@ -24,14 +24,15 @@ Commit the `composer.json` and `composer.lock` files.
 
 Run:
 
-  ./vendor/bin/proctor config:init
+    ./vendor/bin/proctor config:init
 
 To initialize a `~/.proctor.yml` configuration file. Edit the file and
 supply mysql credentials for your local environment. This allows
 Proctor to create test sites.
 
 Run:
-      ./vendor/bin/proctor setup:drupal @alias
+
+    ./vendor/bin/proctor setup:drupal @alias
 
 Where `@alias` is a Drush alias to sync database and files from. This
 can be the production site, a staging site or a site used exclusively
@@ -39,7 +40,7 @@ as source for tests.
 
 Run:
 
-      ./vendor/bin/proctor build test.mysite.dev
+    ./vendor/bin/proctor build test.mysite.dev
 
 This will create a new `test.mysite.dev` site in `sites/`, add it to
 `sites/sites.php`, sync the database and files and clear the cache on
@@ -51,7 +52,8 @@ Now you're ready to add tests. You can place Behat tests in
 will run the appropriate tool (further testing frameworks might be
 forthcoming).
 
-Run: 
+Run:
+
     ./vendor/bin/proctor use test.mysite.dev
 
 This will fix up Behat/Codeception YAML config files to point at the
