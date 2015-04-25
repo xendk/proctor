@@ -42,7 +42,7 @@ EOF
                 throw new RuntimeException('Could not locate behat executable.');
             }
             $output->writeln("<info>Running Behat tests</info>");
-            $exitCode = $this->passthrough('tests/behat', '../../vendor/bin/behat', $output);
+            $exitCode = $this->passthrough('tests/behat', '../../vendor/bin/behat --colors', $output);
             if ($exitCode !== 0) {
                 return $exitCode;
             }
@@ -54,7 +54,7 @@ EOF
                 throw new RuntimeException('Could not locate codecept executable.');
             }
             $output->writeln("<info>Running Codeception tests</info>");
-            $exitCode = $this->passthrough('tests/codecept', '../../vendor/bin/codecept run', $output);
+            $exitCode = $this->passthrough('tests/codecept', '../../vendor/bin/codecept --ansi run', $output);
             if ($exitCode !== 0) {
                 return $exitCode;
             }
