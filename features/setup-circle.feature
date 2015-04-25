@@ -20,6 +20,7 @@ Feature: Cicle CI setup
     Setting up Circle Apache virtual host
     Wrote ./sites/proctor.conf
     command: a2ensite proctor.conf
+    command: a2enmod rewrite
     command: sudo service apache2 restart
     Done
     """
