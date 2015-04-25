@@ -194,3 +194,35 @@ Feature: Building Drupal site
     command: drush cc all
     Done
     """
+
+  Scenario: Command timeout
+    Given "includes/bootstrap.inc" contains:
+    """
+    define('VERSION', '7.34');
+    """
+    # We only set the sleep command to sleep one second more than the
+    # limit as Symfony Proccess has trouble killing the sleep command
+    # because it's part of a pipe.
+    And "~/.proctor.yml" contains:
+    """
+    mysql:
+      host: myhostname
+      user: myusername
+      pass: mypassword
+    commands:
+      drush: 'sleep 3 && true'
+      mysql: 'true'
+    """
+    And "tests/proctor/drupal.yml" contains:
+    """
+    fetch-strategy: drush
+    fetch-alias: @reality
+    """
+    When I run "proctor build --timeout 2 test.site.dev"
+    Then it should fail with:
+    """
+    Building Drupal 7 site
+    Configuring site
+    Syncing database and files
+    The process "sleep 3 && true @reality sql-dump | true --host=myhostname --user=myusername --password=mypassword proctor_test_site_dev" exceeded the timeout of 2 seconds.
+    """

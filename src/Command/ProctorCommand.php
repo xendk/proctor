@@ -153,14 +153,16 @@ class ProctorCommand extends Command
     /**
      * Run a command.
      */
-    protected function runCommand($command, $cwd = null)
+    protected function runCommand($command, $cwd = null, $timeout = null)
     {
         if ($this->input->getOption('print-commands')) {
             $this->output->writeln("<comment>command: " . $command . "</comment>");
         } else {
             $process = new Process($command, $cwd);
-            // Raise timeout, dumping can be time consuming.
-            $process->setTimeout(300);
+            // Set timeout. Dumps can be time consuming.
+            if ($timeout) {
+                $process->setTimeout($timeout);
+            }
             $process->run();
             if ($process->getExitCode() !== 0) {
                 throw new RuntimeException("Command \"{$process->getCommandLine()}\" failed\nOutput:\n{$process->getOutput()}\nError outbut:\n{$process->getErrorOutput()}");

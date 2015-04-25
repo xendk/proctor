@@ -35,6 +35,13 @@ class Build extends ProctorCommand
                 InputOption::VALUE_NONE,
                 'Print external commands instead of invoking them'
             )
+            ->addOption(
+                'timeout',
+                't',
+                InputOption::VALUE_REQUIRED,
+                'Maximum execution time of syncing commands',
+                '300'
+            )
             ->setHelp(<<<EOF
 The <info>%command.name%</info> command builds a site:
 
@@ -67,6 +74,8 @@ EOF
 
         $siteName = $input->getArgument('site');
 
+        $timeout = $input->getOption('timeout');
+
         $output->writeln("<info>Building Drupal " . $coreMajor . " site</info>");
         $output->writeln("<info>Configuring site</info>");
 
@@ -75,7 +84,7 @@ EOF
         $command = $this->mysqlCommand();
         $command .= " -e \"CREATE DATABASE IF NOT EXISTS {$database};\"";
 
-        $this->runCommand($command);
+        $this->runCommand($command, null, $timeout);
 
         $this->{'buildDrupal' . $coreMajor}($siteName, $database);
         $this->addToSites($siteName);
@@ -84,7 +93,7 @@ EOF
 
         switch ($this->siteConfig['fetch-strategy']) {
             case 'drush':
-                $this->fetchDrush($siteName, $database);
+                $this->fetchDrush($siteName, $database, $timeout);
                 break;
 
             default:
@@ -188,7 +197,7 @@ ini_set('session.cookie_lifetime', 2000000);
 
 \$conf['file_public_path'] = 'sites/$siteName/files';
 \$conf['file_private_path'] = 'sites/$siteName/private';
-# Hardcoded to until someone makes an issue out of it.
+# Hardcoded until someone makes an issue out of it.
 \$conf['file_temporary_path'] = '/tmp';
 
 EOF;
@@ -226,7 +235,7 @@ EOF;
     /**
      * Fetch database and files using Drush.
      */
-    protected function fetchDrush($siteName, $database)
+    protected function fetchDrush($siteName, $database, $timeout)
     {
         $command = $this->getCommand('drush');
         $alias = $this->siteConfig['fetch-alias'];
@@ -235,14 +244,14 @@ EOF;
         }
 
         // Sync database.
-        $this->runCommand($command . " {$alias} sql-dump | " . $this->mysqlCommand() . ' ' . $database);
+        $this->runCommand($command . " {$alias} sql-dump | " . $this->mysqlCommand() . ' ' . $database, null, $timeout);
 
         // Sync files.
-        $this->runCommand($command . " rsync -y {$alias}:%files files", 'sites/' . $siteName);
-        $this->runCommand($command . " rsync -y {$alias}:%private private", 'sites/' . $siteName);
+        $this->runCommand($command . " rsync -y {$alias}:%files files", 'sites/' . $siteName, $timeout);
+        $this->runCommand($command . " rsync -y {$alias}:%private private", 'sites/' . $siteName, $timeout);
 
         // Clear cache.
-        $this->runCommand($command . " cc all");
+        $this->runCommand($command . " cc all", null, $timeout);
     }
 
     /**
