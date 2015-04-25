@@ -83,6 +83,7 @@ EOF;
         $output->writeln("<info>Wrote " . $vhostFilename . "</info>");
 
         $this->runCommand('a2ensite proctor.conf');
+        $this->runCommand('a2enmod rewrite');
         $this->runCommand('sudo service apache2 restart');
 
         $output->writeln("<info>Done</info>");
