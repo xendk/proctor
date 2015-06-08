@@ -137,39 +137,6 @@ Feature: Building Drupal site
     When I run "proctor build test.site.dev"
     Then it should fail with "badmysql"
     
-  Scenario: Print commands
-    Given "includes/bootstrap.inc" contains:
-    """
-    define('VERSION', '7.34');
-    """
-    And "~/.proctor.yml" contains:
-    """
-    mysql:
-      host: myhostname
-      user: myusername
-      pass: mypassword
-    database-mapping:
-      "/^([^.]+).([^.]+).([^.]+)$/": "$2_$1"
-    """
-    And "tests/proctor/drupal.yml" contains:
-    """
-    fetch-strategy: drush
-    fetch-alias: @reality
-    """
-    When I run "proctor build -p test.site.dev"
-    Then it should pass with:
-    """
-    Building Drupal 7 site
-    Configuring site
-    command: mysql --host=myhostname --user=myusername --password=mypassword -e "CREATE DATABASE IF NOT EXISTS site_test;"
-    Syncing database and files
-    command: drush @reality sql-dump | mysql --host=myhostname --user=myusername --password=mypassword site_test
-    command: drush rsync -y @reality:%files files
-    command: drush rsync -y @reality:%private private
-    command: drush cc all
-    Done
-    """
-    
   Scenario: "drush" strategy building on CircleCI
     Given "includes/bootstrap.inc" contains:
     """
