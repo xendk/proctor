@@ -42,15 +42,20 @@ class Build extends ProctorCommand
                 'Maximum execution time of syncing commands',
                 '300'
             )
+            ->addOption(
+                'hash-seed',
+                's',
+                InputOption::VALUE_OPTIONAL,
+                'Integer seed for random hash value. Default is random.'
+            )
             ->setHelp(<<<EOF
 The <info>%command.name%</info> command builds a site:
 
   <info>%command.full_name% default</info>
 
-Creates a new Drupal multi-site, creates the database and populates it with
-database and files from the source configured with:
+Creates a new Drupal multi-site, creates the database and populates it using
+the method configured in setup:drupal.
 
-  <info>%command.full_name% setup:drupal</info>
 EOF
             );
     }
@@ -58,11 +63,11 @@ EOF
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         if (!($coreMajor = $this->sniffDrupalMajor(getcwd()))) {
-            throw new RuntimeException('Could not determine Drupal version', 1);
+            throw new RuntimeException('Could not determine Drupal version');
         }
 
-        if ($coreMajor !== 7) {
-            throw new RuntimeException("Drupal $coreMajor currently not supported", 1);
+        if ($coreMajor !== 7 && $coreMajor !== 8) {
+            throw new RuntimeException("Drupal $coreMajor currently not supported");
         }
 
         if (getenv('CIRCLECI')) {
@@ -76,6 +81,44 @@ EOF
 
         $timeout = $input->getOption('timeout');
 
+        $seed = (int) $input->getOption('hash-seed');
+
+        switch ($this->siteConfig['fetch-method']) {
+            case 'drush':
+                $alias = $this->siteConfig['fetch-alias'];
+                if (empty($alias) || $alias[0] != '@') {
+                    throw new RuntimeException("Invalid fetch-alias \"{$alias}\" in tests/proctor/drupal.yml");
+                }
+                break;
+
+            case 'dump-n-config':
+                if ($coreMajor != 8) {
+                    throw new RuntimeException("The dump-n-config fetch method is only supported in Drupal 8, in tests/proctor/drupal.yml");
+                }
+                $dumpFile = $this->siteConfig['fetch-dumpfile'];
+                if (empty($dumpFile)) {
+                    throw new RuntimeException("Missing fetch-dumpfile in tests/proctor/drupal.yml");
+                }
+
+                if (!file_exists($dumpFile)) {
+                    throw new RuntimeException("SQL dump file \"$dumpFile\" in tests/proctor/drupal.yml, doesn't exist.");
+                }
+
+
+                $stagingDir = $this->siteConfig['fetch-staging'];
+                if (empty($stagingDir)) {
+                    throw new RuntimeException("Missing fetch-staging in tests/proctor/drupal.yml");
+                }
+
+                if (!file_exists($stagingDir)) {
+                    throw new RuntimeException("Configuration staging directory  \"$stagingDir\" in tests/proctor/drupal.yml, doesn't exist.");
+                }
+                break;
+
+            default:
+                throw new RuntimeException("Unknown fetch method \"{$this->config['fetch-method']}\", in tests/proctor/drupal.yml");
+        }
+
         $output->writeln("<info>Building Drupal " . $coreMajor . " site</info>");
         $output->writeln("<info>Configuring site</info>");
 
@@ -86,23 +129,29 @@ EOF
 
         $this->runCommand($command, null, $timeout);
 
-        $this->{'buildDrupal' . $coreMajor}($siteName, $database);
+        $this->buildDrupal($coreMajor, $siteName, $database, $seed);
         $this->addToSites($siteName);
 
-        $output->writeln("<info>Syncing database and files</info>");
 
-        switch ($this->siteConfig['fetch-strategy']) {
+        switch ($this->siteConfig['fetch-method']) {
             case 'drush':
-                $this->fetchDrush($siteName, $database, $timeout);
+                $output->writeln("<info>Syncing database and files</info>");
+                $this->methodDrush($siteName, $database, $timeout);
                 break;
 
-            default:
-                throw new RuntimeException("Unknown fetch-strategy \"{$this->config['fetch-strategy']}\" in ~/..proctor.yml");
+            case 'dump-n-config':
+                $output->writeln("<info>Importing SQL dump and config</info>");
+                $this->methodDumpNConfig($siteName, $database, $timeout);
+                break;
+
         }
 
         $output->writeln("<info>Done</info>");
     }
 
+    /**
+     * Detect Drupal major version at path.
+     */
     protected function sniffDrupalMajor($path)
     {
         if (file_exists($path . '/core/lib/Drupal.php')) {
@@ -148,15 +197,15 @@ EOF
     }
 
     /**
-     * Build Drupal  site.
+     * Build Drupal site.
      */
-    protected function buildDrupal7($siteName, $database)
+    protected function buildDrupal($major, $siteName, $database, $seed = 0)
     {
         $settingsFile = 'sites/' . $siteName . '/settings.php';
 
         if (!file_exists(dirname($settingsFile))) {
             if (!mkdir(dirname($settingsFile), 0777, true)) {
-                throw new RuntimeException('Could not create site directory', 1);
+                throw new RuntimeException('Could not create site directory');
             }
         }
 
@@ -183,11 +232,15 @@ EOF
         );
 
         $settings .= '$databases = ' . var_export($dbSettings, true) . ";\n";
+        if ($seed) {
+            mt_srand($seed);
+        }
 
-        // An empty hash salt makes Drupal use a hash of the database
-        // credentials as salt, which is good enough for our purposes.
-        $settings .= <<<EOF
-\$drupal_hash_salt = '';
+        $hash = hash('sha256', mt_rand());
+
+        if ($major == 7) {
+            $settings .= <<<EOF
+\$drupal_hash_salt = '$hash';
 \$update_free_access = FALSE;
 
 ini_set('session.gc_probability', 1);
@@ -201,9 +254,28 @@ ini_set('session.cookie_lifetime', 2000000);
 \$conf['file_temporary_path'] = '/tmp';
 
 EOF;
+        } elseif ($major == 8) {
+            $settings .= <<<EOF
+\$settings['hash_salt'] = '$hash';
+\$settings['container_yamls'][] = __DIR__ . '/services.yml';
+\$settings['file_chmod_directory'] = 0777;
+\$settings['file_chmod_file'] = 0777;
+\$config_directories[CONFIG_STAGING_DIRECTORY] = 'configuration/staging';
+\$config_directories[CONFIG_ACTIVE_DIRECTORY] = 'sites/$siteName/private/config_active';
+\$settings['file_public_path'] = 'sites/$siteName/files';
+\$settings['file_private_path'] = 'sites/$siteName/private';
+
+EOF;
+        }
 
         if (!file_put_contents($settingsFile, $settings)) {
-            throw new RuntimeException("Could not write $settingsFile", 1);
+            throw new RuntimeException("Could not write $settingsFile");
+        }
+
+        if ($major == 8) {
+            if (!copy('sites/default/default.services.yml', 'sites/' . $siteName . '/services.yml')) {
+                throw new RuntimeException("Could not copy sites/default/default.services.yml");
+            }
         }
 
         if (!file_exists('sites/' . $siteName . '/files')) {
@@ -222,27 +294,24 @@ EOF;
         $sitesFile = 'sites/sites.php';
         if (!file_exists($sitesFile) &&
             !file_put_contents($sitesFile, "<?php\n")) {
-            throw new RuntimeException("Could not create $sitesFile", 1);
+            throw new RuntimeException("Could not create $sitesFile");
         }
 
         $sites = file_get_contents($sitesFile);
         $sites = rtrim($sites) . "\n\$sites['$siteName'] = '$siteName';\n";
         if (!file_put_contents($sitesFile, $sites)) {
-            throw new RuntimeException("Could not write $sitesFile", 1);
+            throw new RuntimeException("Could not write $sitesFile");
         }
     }
 
     /**
      * Fetch database and files using Drush.
      */
-    protected function fetchDrush($siteName, $database, $timeout)
+    protected function methodDrush($siteName, $database, $timeout)
     {
         $command = $this->getCommand('drush');
+        $command .= ' --uri=' . $siteName;
         $alias = $this->siteConfig['fetch-alias'];
-        if (empty($alias) || $alias[0] != '@') {
-            throw new RuntimeException("Invalid fetch-alias \"{$alias}\" in tests/proctor/drupal.yml");
-        }
-
         // Sync database.
         $this->runCommand($command . " {$alias} sql-dump | " . $this->mysqlCommand() . ' ' . $database, null, $timeout);
 
@@ -252,6 +321,25 @@ EOF;
 
         // Clear cache.
         $this->runCommand($command . " cc all", null, $timeout);
+    }
+
+    /**
+     * Build site from dump and config.
+     */
+    protected function methodDumpNConfig($siteName, $database, $timeout)
+    {
+        $drushCommand = $this->getCommand('drush');
+        $drushCommand .= ' --uri=' . $siteName;
+        $zcatCommand = $this->getCommand('zcat');
+
+        $dumpFile = $this->siteConfig['fetch-dumpfile'];
+        $staging = $this->siteConfig['fetch-staging'];
+
+        // Import dump.
+        $this->runCommand($zcatCommand . " " . $dumpFile . " | " . $this->mysqlCommand() . ' ' . $database, null, $timeout);
+
+        // Import configuration.
+        $this->runCommand($drushCommand . " -y cim", null, $timeout);
     }
 
     /**
