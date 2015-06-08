@@ -272,17 +272,21 @@ EOF;
             throw new RuntimeException("Could not write $settingsFile");
         }
 
-        if ($major == 8) {
-            if (!copy('sites/default/default.services.yml', 'sites/' . $siteName . '/services.yml')) {
-                throw new RuntimeException("Could not copy sites/default/default.services.yml");
-            }
-        }
-
         if (!file_exists('sites/' . $siteName . '/files')) {
             mkdir('sites/' . $siteName . '/files');
         }
         if (!file_exists('sites/' . $siteName . '/private')) {
             mkdir('sites/' . $siteName . '/private');
+        }
+
+        if ($major == 8) {
+            if (!copy('sites/default/default.services.yml', 'sites/' . $siteName . '/services.yml')) {
+                throw new RuntimeException("Could not copy sites/default/default.services.yml");
+            }
+
+            if (!file_exists('sites/' . $siteName . '/private/config_active')) {
+                mkdir('sites/' . $siteName . '/private/config_active');
+            }
         }
     }
 
