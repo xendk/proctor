@@ -3,7 +3,7 @@ Feature: Building Drupal site
   As a user
   I need to be able to build a Drupal site
 
-  Scenario: Basic setup
+  Scenario: "drush" strategy
     Given "includes/bootstrap.inc" contains:
     """
     define('VERSION', '7.34');
@@ -63,7 +63,7 @@ Feature: Building Drupal site
     $sites['test.site.dev'] = 'test.site.dev';
     """
 
-  Scenario: Running commands
+  Scenario: Running custom commands
     Given "includes/bootstrap.inc" contains:
     """
     define('VERSION', '7.34');
@@ -170,7 +170,7 @@ Feature: Building Drupal site
     Done
     """
     
-  Scenario: Building on CircleCI
+  Scenario: "drush" strategy building on CircleCI
     Given "includes/bootstrap.inc" contains:
     """
     define('VERSION', '7.34');
