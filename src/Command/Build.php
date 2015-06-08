@@ -302,9 +302,12 @@ EOF;
         }
 
         $sites = file_get_contents($sitesFile);
-        $sites = rtrim($sites) . "\n\$sites['$siteName'] = '$siteName';\n";
-        if (!file_put_contents($sitesFile, $sites)) {
-            throw new RuntimeException("Could not write $sitesFile");
+        $siteLine = "\$sites['$siteName'] = '$siteName';";
+        if (strpos($sites, $siteLine) === false) {
+            $sites = rtrim($sites) . "\n$siteLine\n";
+            if (!file_put_contents($sitesFile, $sites)) {
+                throw new RuntimeException("Could not write $sitesFile");
+            }
         }
     }
 
