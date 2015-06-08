@@ -38,11 +38,11 @@ EOF
     {
         // Behat.
         if (file_exists('tests/behat')) {
-            if (!file_exists('vendor/bin/behat')) {
+            if (!file_exists('tests/vendor/bin/behat')) {
                 throw new RuntimeException('Could not locate behat executable.');
             }
             $output->writeln("<info>Running Behat tests</info>");
-            $exitCode = $this->passthrough('tests/behat', '../../vendor/bin/behat --colors', $output);
+            $exitCode = $this->passthrough('tests/behat', '../vendor/bin/behat --colors', $output);
             if ($exitCode !== 0) {
                 return $exitCode;
             }
@@ -50,11 +50,11 @@ EOF
 
         // Codeception.
         if (file_exists('tests/codecept')) {
-            if (!file_exists('vendor/bin/codecept')) {
+            if (!file_exists('tests/vendor/bin/codecept')) {
                 throw new RuntimeException('Could not locate codecept executable.');
             }
             $output->writeln("<info>Running Codeception tests</info>");
-            $exitCode = $this->passthrough('tests/codecept', '../../vendor/bin/codecept --ansi run', $output);
+            $exitCode = $this->passthrough('tests/codecept', '../vendor/bin/codecept --ansi run', $output);
             if ($exitCode !== 0) {
                 return $exitCode;
             }

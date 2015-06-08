@@ -8,7 +8,7 @@ Feature: Running tests
     """
     fake contents
     """
-    And "vendor/bin/behat" contains:
+    And "tests/vendor/bin/behat" contains:
     """
     #!/usr/bin/env php
     <?php
@@ -27,7 +27,7 @@ Feature: Running tests
     """
     fake contents
     """
-    And "vendor/bin/behat" contains:
+    And "tests/vendor/bin/behat" contains:
     """
     #!/usr/bin/env php
     <?php
