@@ -340,7 +340,6 @@ EOF;
         $zcatCommand = $this->getCommand('zcat');
 
         $dumpFile = $this->siteConfig['fetch-dumpfile'];
-        $staging = $this->siteConfig['fetch-staging'];
 
         // Import dump.
         $this->runCommand($zcatCommand . " " . $dumpFile . " | " . $this->mysqlCommand() . ' ' . $database, null, $timeout);
